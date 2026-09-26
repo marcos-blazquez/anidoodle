@@ -3,6 +3,7 @@ engine/node_modules/
 engine/out/
 engine/dist/
 engine/.tmp/
+outputs/
 **/*.log
 .DS_Store
 
