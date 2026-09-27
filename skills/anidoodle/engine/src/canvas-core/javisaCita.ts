@@ -13,7 +13,7 @@ import { advance, fibres, glyph, measure, onGrid, path, scissor, tear, type Face
 // Every prop is card with a darker cut edge, standing a finger's width off the flat behind it and
 // throwing a soft shadow whose spread is that gap. Three papers: printed papers (form paper for the
 // Reservar ticket, the calendar and the time chips; printed glass for the phone), sugar papers (the
-// torn chat bubbles, the stub URL sign, the cream drop, the green blotter) and gouache cut-outs with
+// torn chat bubbles, the cream drop, the green blotter) and gouache cut-outs with
 // a white sticker margin (the hand, the appointment card, the check, the ring, the domain plate).
 // MARK / EDGE / ORDER. Mark: the gouache stroke and the printed motif, never a drawn line; lettering
 // is printed stroke type. Edge: scissor or torn, then the card edge, then the sticker margin. Order:
@@ -21,8 +21,8 @@ import { advance, fibres, glyph, measure, onGrid, path, scissor, tear, type Face
 // STORY. The appointment card is the object. Hook: it lands in a crowded chat and slips off the
 // phone into the wing; the torn bubbles flutter down and the stage is empty. Landing: a cream drop is
 // flown in, a storefront with its brand and services is slid on, a Reservar ticket rises from the
-// floor and a customer's finger presses its gold button. Domain: a limp stub-URL sign is lowered, yanked away, and a tudominio.cl plate on a stick
-// docks on the fascia. Booking: on a blotter, a ring picks a time, the card comes back from the wing
+// floor and a customer's finger presses its gold button. Domain: a tudominio.cl plate on a stick is
+// lowered from the flies and docks on the fascia. Booking: on a blotter, a ring picks a time, the card comes back from the wing
 // into a painted slot and is checked. Close: the blotter lifts, and storefront, plate and the
 // checked card stand together.
 // REFERENCE, from memory: Pollock's and Webb's Victorian toy theatres (proscenium, wings, flown
@@ -37,7 +37,7 @@ const S = [0, 120, 240, 360, 480, N];
 const CUE = {
   hook: { bubbles: [0, 10, 20, 30], card: 45, slip: 60, out: 90, flutter: 5 },
   landing: { drop: 120, store: 140, services: 175, ticket: 195, tap: 220, press: 235, away: 245 },
-  domain: { sign: 240, yank: 270, plate: 280 },
+  domain: { plate: 245 },
   agenda: { ring: 375, card: 390, check: 425, tag: 445 },
   close: { lift: 480, caption: 485, card: 500, buttons: [515, 525], still: 535 },
   caption: { in: 5 },
@@ -167,12 +167,9 @@ const tapHand: Piece = { id: "tapHand", seed: 125, cut: [TAP], border: 6, edge: 
     c.strokeStyle = SKIN_SH; c.lineWidth = 4; c.lineCap = "round"; [[826, 1352], [846, 1378], [868, 1398]].forEach(([x, y]) => { c.beginPath(); c.moveTo(x, y); c.lineTo(x + 18, y - 4); c.stroke(); });
     const cuff = bx(960, 1300, 1050, 1430); withClip(c, TAP, () => { gouache(c, cuff, GOLD, 128, { dir: Math.PI / 2, len: 26, w: 9 }); dotPrint(c, cuff, "#fbf1d6", 14, 2); }); } };
 
-// ---------------------------------------------------------------- 3 · domain: the stub URL sign on threads, then the tudominio.cl plate on a stick
-const SIGN: P[] = tear(bx(330, 776, 750, 840), 2.2, 131), THREADS: P[][] = [bx(372, 300, 375, 780), bx(705, 300, 708, 780)];
-const sign: Piece = { id: "sign", seed: 131, cut: [...THREADS, SIGN], edge: "#8a857c", depth: 4, pivot: [540, 808], show: CUE.domain.sign, start: [0, -700], mv: [[CUE.domain.sign, 15, [0, 0]], [CUE.domain.yank, 15, [0, -900], true]], sway: [{ at: [540, 300], amp: 0.02, per: 34, from: CUE.domain.sign + 10, to: CUE.domain.yank, decay: 40 }],
-  face: (c) => { c.fillStyle = "#d9d2c4"; THREADS.forEach((t) => { path(c, t); c.fill(); }); c.fillStyle = "#b9b4aa"; path(c, SIGN); c.fill(); fibres(c, SIGN, "#b9b4aa", 132, 1, 0.2); words(c, "WEB-XYZ.COM/?ID=8341", 540, 808, 22, "#5f5a52", PENCIL); } };
+// ---------------------------------------------------------------- 3 · domain: the tudominio.cl plate on a stick
 const PLATE: P[] = scissor(bx(290, 766, 790, 848), 141, 0.5), STICK: P[] = bx(535, 300, 545, 770);
-const plate: Piece = { id: "plate", seed: 141, cut: [STICK, PLATE], border: 6, edge: "#9c7a3c", depth: 8, pivot: [540, 807], show: CUE.domain.plate, start: [0, -560], mv: [[CUE.domain.plate, 30, [0, 0]]], sway: [{ at: [540, 300], amp: 0.025, per: 36, from: CUE.domain.plate + 30, to: CUE.close.lift, decay: 45 }],
+const plate: Piece = { id: "plate", seed: 141, cut: [STICK, PLATE], border: 6, edge: "#9c7a3c", depth: 8, pivot: [540, 807], show: CUE.domain.plate, start: [0, -560], mv: [[CUE.domain.plate, 30, [0, 0]]], sway: [{ at: [540, 300], amp: 0.025, per: 36, from: CUE.domain.plate + 30, to: CUE.close.lift, decay: 80 }],
   face: (c) => { c.fillStyle = "#d8b37a"; path(c, STICK); c.fill(); c.fillStyle = "#b88c52"; c.fillRect(541, 300, 3, 470);
     gouache(c, PLATE, "#fbf1d6", 142, { len: 40, w: 12, vary: 0.04 }); c.strokeStyle = GOLD; c.lineWidth = 7; c.strokeRect(302, 778, 476, 58); words(c, "TUDOMINIO.CL", 540, 807, 38, NAVY); } };
 
@@ -243,7 +240,7 @@ const stage = (ctx: Ctx, env: Env) => {
   ctx.fillStyle = "#c9a36f"; path(ctx, FLOOR_S); ctx.fill(); woodPrint(ctx, FLOOR_S, "#7a5a34", 243); ctx.fillStyle = "rgba(40,24,10,0.22)"; ctx.fillRect(OPEN.x0, FLOOR, OPEN.x1 - OPEN.x0, 10);
 };
 // painter order, back to front
-const PAINTER: Piece[] = [drop, storefront, services, sign, plate, ticket, tapHand, card3, palm, phone, ...BUBBLES, card1, fingers, thumb, blotter, ring, card2, check, tag];
+const PAINTER: Piece[] = [drop, storefront, services, plate, ticket, tapHand, card3, palm, phone, ...BUBBLES, card1, fingers, thumb, blotter, ring, card2, check, tag];
 const OVER: Piece[] = [proscenium, ...CAPS, ...BUTTONS];
 const ALL = [...PAINTER, ...OVER];
 onGrid("javisaCita", [...S, ...Object.values(CUE).flatMap((g) => Object.values(g).flat()), ...ALL.flatMap((p) => (p.mv ?? []).flatMap(([a, d]) => [a, a + d]))], N);
