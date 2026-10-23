@@ -4,12 +4,26 @@
 //   truePeak  4x oversampled (windowed-sinc polyphase), dBTP
 //   onsets    spectral flux with a max-filtered previous frame (SuperFlux-style), adaptive threshold
 //   centroid  magnitude-weighted spectral centroid, averaged over non-silent frames
-export const fft = (re: Float64Array, im: Float64Array) => {
-  const n = re.length;
-  for (let i = 1, j = 0; i < n; i++) { let bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+/** Per size: the bit-reversal swaps and, per stage, the twiddles exactly as the butterfly loop's recurrence makes them (so the tables change speed, not a single bit). */
+const FFT_PLAN = new Map<number, { swaps: Int32Array; tw: { r: Float64Array; i: Float64Array }[] }>();
+const fftPlan = (n: number) => {
+  let p = FFT_PLAN.get(n); if (p) return p;
+  const sw: number[] = [];
+  for (let i = 1, j = 0; i < n; i++) { let bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) sw.push(i, j); }
+  const tw: { r: Float64Array; i: Float64Array }[] = [];
   for (let len = 2; len <= n; len <<= 1) {
-    const ang = (-2 * Math.PI) / len, wr = Math.cos(ang), wi = Math.sin(ang);
-    for (let i = 0; i < n; i += len) { let cr = 1, ci = 0; for (let j = 0; j < len / 2; j++) { const a = i + j, b = a + len / 2, xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr; re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi; const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t; } }
+    const ang = (-2 * Math.PI) / len, wr = Math.cos(ang), wi = Math.sin(ang), h = len / 2, r = new Float64Array(h), im = new Float64Array(h); let cr = 1, ci = 0;
+    for (let j = 0; j < h; j++) { r[j] = cr; im[j] = ci; const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t; }
+    tw.push({ r, i: im });
+  }
+  p = { swaps: Int32Array.from(sw), tw }; FFT_PLAN.set(n, p); return p;
+};
+export const fft = (re: Float64Array, im: Float64Array) => {
+  const n = re.length, { swaps, tw } = fftPlan(n);
+  for (let s = 0; s < swaps.length; s += 2) { const i = swaps[s], j = swaps[s + 1]; let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+  for (let len = 2, st = 0; len <= n; len <<= 1, st++) {
+    const h = len / 2, twr = tw[st].r, twi = tw[st].i;
+    for (let i = 0; i < n; i += len) for (let j = 0; j < h; j++) { const cr = twr[j], ci = twi[j], a = i + j, b = a + h, xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr; re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi; }
   }
 };
 
@@ -39,7 +53,7 @@ export const loudness = (chans: Float32Array[], sr: number) => {
   const stG = stAbs.map(lufs).filter((l) => l > stRel).sort((a, b) => a - b);
   const pct = (p: number) => (stG.length ? stG[Math.min(stG.length - 1, Math.max(0, Math.round((p / 100) * (stG.length - 1))))] : NaN);
   const shortTerm = st.map(lufs);
-  return { integrated, lra: pct(95) - pct(10), shortMax: Math.max(...shortTerm), momentaryMax: Math.max(...blocks.map(lufs)), shortTerm, hopS: 0.1 };
+  return { integrated, lra: pct(95) - pct(10), shortMax: Math.max(...shortTerm), momentaryMax: Math.max(...blocks.map(lufs)), shortTerm, momentary: blocks.map(lufs), hopS: 0.1 }; // momentary: one 400 ms block every hop, block i centred at i * hopS + 0.2 s
 };
 
 export const truePeak = (chans: Float32Array[]) => {
@@ -102,4 +116,37 @@ export type Meters = { durationS: number; lufs: number; lra: number; shortMax: n
 export const measure = (chans: Float32Array[], sr: number): Meters => {
   const l = loudness(chans, sr), tp = truePeak(chans), on = onsets(chans, sr), c = centroid(chans, sr), dur = chans[0].length / sr;
   return { durationS: dur, lufs: l.integrated, lra: l.lra, shortMax: l.shortMax, dbtp: tp.dbtp, samplePeakDb: tp.samplePeakDb, onsetsPerS: on.length / dur, onsetCount: on.length, centroidHz: c.mean, centroidEnergyHz: c.energyWeighted, lastOnsetS: on.length ? on[on.length - 1] : 0, shortTerm: l.shortTerm };
+};
+
+/**
+ * The level a part plays at when it plays, dBFS: the RMS of its MID ((L + R) / 2, after its pan: what a phone's one
+ * speaker plays, and a centred mono part reads exactly its own level), high-passed at 30 Hz, over the 20 ms blocks where it
+ * is really playing.
+ * Gated like BS.1770 loudness: blocks under -70 dBFS never count, then blocks more than 20 dB under the part's own
+ * level drop out, so a reverb tail, a pedal ring or a noise floor does not dilute it. (v1 read the LEFT channel only,
+ * sample by sample above a -80 dB floor: a hat panned right read low, a ride panned left read high, and every long
+ * tail pulled a part down; the targets were converted at the sound-v2 merge on the renders they were set on.)
+ */
+export const stemRms = (L: Float32Array, R: Float32Array = L, sr = 48000) => {
+  const B = Math.max(1, Math.round(0.02 * sr)), n = Math.min(L.length, R.length), pw: number[] = [];
+  // audible band only (a 30 Hz high-pass, like loudness's RLB stage): a voice's DC or subsonic drift is not level (a harp's DC offset swung it 4.8 dB)
+  const w = Math.tan(Math.PI * Math.min(30, 0.45 * sr) / sr), k = 1 / (1 + Math.SQRT2 * w + w * w), b0 = k, a1 = 2 * (w * w - 1) * k, a2 = (1 - Math.SQRT2 * w + w * w) * k;
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+  const mid = new Float64Array(n); for (let i = 0; i < n; i++) { const x = (L[i] + R[i]) * 0.5, y = b0 * (x - 2 * x1 + x2) - a1 * y1 - a2 * y2; x2 = x1; x1 = x; y2 = y1; y1 = y; mid[i] = y; }
+  for (let a = 0; a < n; a += B) { const e = Math.min(n, a + B); let s = 0; for (let i = a; i < e; i++) s += mid[i] * mid[i]; pw.push(s / (e - a)); }
+  const abs = pw.filter((p) => p > 1e-7); if (!abs.length) return -Infinity;
+  const rel = (abs.reduce((a, p) => a + p, 0) / abs.length) * 0.01, gated = abs.filter((p) => p >= rel);
+  return 10 * Math.log10(gated.reduce((a, p) => a + p, 0) / gated.length);
+};
+export type StemRow = { id: string; rmsDb: number; targetDb: number | null; offDb: number | null; ok: boolean };
+/**
+ * Stem balance: each part's active RMS against its target; a part more than `tolDb` off is flagged.
+ * LESSON (the launch score): integrated LUFS of the mix looked right while the sub sat 7-10 dB too hot.
+ * Loudness says how loud the whole is, never which part is wrong. Meter the stems.
+ */
+/** Guards win over stem targets: the melody must clear the masking guard, so the lead may sit up to `LEAD_HEADROOM_DB` above its target before it is flagged. */
+export const LEAD_HEADROOM_DB = 3;
+export const stemBalance = (stems: Record<string, [Float32Array, Float32Array]>, targets: Record<string, number>, tolDb = 3, headroom: Record<string, number> = { lead: LEAD_HEADROOM_DB }, sr = 48000) => {
+  const rows: StemRow[] = Object.entries(stems).map(([id, [L, R]]) => { const rmsDb = stemRms(L, R, sr), t = targets[id] ?? null, off = t === null ? null : rmsDb - t; return { id, rmsDb, targetDb: t, offDb: off, ok: off === null || (off >= -tolDb && off <= tolDb + (headroom[id] ?? 0)) }; });
+  return { rows, pass: rows.every((r) => r.ok), tolDb, headroom };
 };

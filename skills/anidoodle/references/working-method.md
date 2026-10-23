@@ -13,7 +13,7 @@
 - **Critique it yourself first**, in writing, against the craft table, and say what is still wrong when you show it.
 - ✋ One approval.
 - **Then build end to end without stopping.** A rough complete film on day one beats a perfect first act. Mechanical checks run continuously and need nobody's approval: types, grid, contract scan, draw budget, determinism probe, dead air.
-- **Review the whole, once.** From the rendered file itself: a contact sheet at one tile per beat, each cut as a before/after pair with a difference measure, the dead-air numbers, a few full-resolution frames where the sheet raises a doubt. One numbered fix list, ranked. One rebuild.
+- **A fresh critic reviews, never the builder.** After the storyboard, after each scene and after each full render, a new subagent that saw none of the building pulls its own frames from the rendered file, reads a silent contact sheet, retells the story and returns ranked problems with timestamps and a verdict, `ship` or `one more pass`. Fix the biggest first, re-render, and a NEW critic rechecks. At most 3 rounds, then report what remains. Each round is logged in `ledger.md`. How it is run (the loop, four readings, a scorecard, the gate): `workflows/review.md`.
 - **Approval is a budget.** Each gate spends the client's attention and your tokens. Spend them where being wrong is expensive, which is the look, the music sample and the final film. Three, not thirty.
 
 **What a good review looks like** (this part of the over-gated process was worth keeping): freeze a copy of the file and note its hash before looking, because the builder may be re-rendering under you (it was, twice). Report what works first, so it survives the fixes. Give causes, not impressions: not "the body is green" but "the sun disc prints over the thorax, blue times yellow". Correct your own spec in the same breath when the fault was yours (a 5-frame wing lag that I specified became antiphase on a 10-frame beat: one wing folded while the other was spread).
@@ -40,3 +40,47 @@ Do not push through. Reset:
 4. **The fresh session verifies before it trusts.** Read the files, check the disk, say what disagrees with the briefing. (Ours found that the "already built" camera was not in the source, in the first five minutes.)
 
 A reset cost us about ten minutes because the state was in files. It would have cost the project if the state had been in the conversation. And when a message arrives truncated, look for the full text in the session transcript before you guess; twice the missing half changed the job.
+
+---
+
+## Spend tokens and time where they buy something
+
+The launch film cost 188M tokens, about 99% of them cache re-reads of one 750k-token context.
+None of that was drawing. These habits cut it by an order of magnitude:
+
+- **One session per cut, with a handover file.** When a cut is done, write the state (what
+  exists, the rules the person gave, what is open, where files live) and start the next cut in a
+  fresh session that reads it. A long session re-reads its whole history on every turn.
+- **Briefed helpers, never context-inheriting forks.** A helper gets a short written brief and
+  the few files it needs. A fork inherits the whole conversation and pays for it on every call.
+- **Contact sheets at 0.3-0.5 scale** for review (`ffmpeg -vf "fps=1,scale=576:-1,tile=4x4"`),
+  full size only for the crop a sheet raised a doubt about. Never re-read a big image you have
+  already judged.
+- **Options sheet before any full render.** Transitions, type styles, palettes: one still
+  sheet with three to six variants side by side, picked in one message.
+- **Timelines as data.** Scenes on one content timeline, the cut as a list of segments
+  (`launchCut.ts`). Re-timing edits the list; scene code and its reviews stay valid.
+- **Range renders.** `render.mjs <film> --from F --to T` renders frames `[F, T)` only, silent
+  (the score would not line up), and writes `out/<film>.<F>-<T>.mp4`; it refuses an `--out`
+  that is the finished film. For review, not for shipping.
+- **Many stills, one browser.** `still.mjs <film> --frames 0,700,1500` draws every listed frame
+  in one page (one build, one launch, plates baked once); ranges work too, `--frames 0-300:50`
+  is every 50th frame from 0 to 300. Add `--sheet out/sheet.jpg` for a contact sheet of them at
+  `--sheet-scale` (default 0.4). `--out out/dir/` or `--out out/x-{frame}.png` names the PNGs.
+- **Plate cache.** Finished plate frames are kept in `engine/.cache/bakes/<browser version>-<binary>/`,
+  keyed by a hash of the plate's whole import closure, so a wall of 32 live plates stops
+  re-baking (about 60 s) on every still, and an edited plate simply misses and is drawn again.
+  It is never needed: delete `.cache/` any time. `--no-bake-cache` (or `ANIDOODLE_BAKE_CACHE=0`)
+  draws every plate cold, which is what to do when you suspect the cache.
+- **Frame-exact comparisons.** `render.mjs --hashes out/x.md5` writes the md5 of every frame
+  before the encoder touches it; diff two of those files to prove an engine change left a film
+  byte-identical, or to find the first frame it moved.
+- **Holds are declared, never absorbed.** A word being read, an end card, a loop being watched:
+  put the range in `meta.holds` with its reason in a comment. The gate's dead-air check then
+  knows the stillness is meant. Anything else that sits still is a dead wait: cut it. A wait the
+  review found in a film that is already approved goes in `meta.locked` with its reason: the gate
+  prints it and keeps failing, so the decision stays visible. If the owner accepts it as shipped,
+  it becomes a hold with that reason as its third field (`[from, to, "approved as shipped: ..."]`),
+  which the gate prints and passes (`launch3.ts`).
+- **`npm test`** (in `engine/`) runs the unit suites in `engine/test/*.test.ts` without a
+  browser (camera moves today). Run it with the gate after any engine change.

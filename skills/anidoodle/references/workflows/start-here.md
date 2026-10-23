@@ -14,7 +14,7 @@ pick", pick, say what you picked and why in one line, and carry on.
    explainer, an infographic, a launch or product video, an interactive web piece, a drawing
    lesson, a character, or a style matched from their image. The table in `SKILL.md` routes each
    one to its workflow file.
-2. **Which style?** Show the gallery (`assets/gallery/styles.jpg`, one tile per hand; the list with
+2. **Which style?** Show the gallery (https://github.com/alexgreensh/anidoodle/blob/main/skills/anidoodle/assets/styles.jpg, one tile per hand; the list with
    each hand's medium is `references/styles/INDEX.md`). Recommend two or three hands that suit the
    subject and the audience, with one reason each. Offer two other routes:
    - **"Match my image"**: they bring a picture and you adapt its hand (`adapt-a-style.md`).
@@ -26,11 +26,26 @@ pick", pick, say what you picked and why in one line, and carry on.
    (`long-film.md`).
 5. **Sound?** Silent, or a score: name a music style and a mood per section
    (`references/music/`). Their own voice-over or track is theirs to bring; anidoodle composes
-   and synthesizes everything else.
+   and plays everything else.
 6. **Characters?** A new one (build it once, `character-consistency.md`), one they already have
    in a module, or one from their image (reference, embedded only if they ask).
 
 Stop asking the moment you can build. Two questions answered well beat six asked.
+
+## When they name a move
+
+When the person names a move ("a whip pan to the cat", "a slow-mo at the top of the jump"), look
+the name up first: `node <skill>/engine/tools/deck.mjs find "<name>"` returns the card or engine
+call that builds it, or the reason anidoodle refuses it and what it makes instead. Then record
+the move in the brief in four parts: **name** (theirs, and the card id), **duration** (seconds),
+**strength** (how far, how fast or how much: a distance as a share of the frame width, a speed,
+an overshoot) and **what moves** (which element, camera or layer). Fill only what they said. For
+every part they left open, the card's own numbers are the default, written down and marked as
+defaults: "whip pan (cam-whip-to-rest) · 0.4 to 0.7 s, card default · peak under the speed
+ceiling, card default · the camera, onto the cat, theirs". A vague ask becomes a spec someone can
+check against the render. When `find` returns an engine call, there are no card numbers: record
+the four parts with your own numbers, marked as yours. When it returns a refusal, tell the person
+the reason in one line, record the alternative you will build, and let them veto it.
 
 ## Defaults when they do not say
 
@@ -45,5 +60,34 @@ Stop asking the moment you can build. Two questions answered well beat six asked
 ## Write it down before you draw
 
 One short brief file in the project: kind, style (and why), shape(s), length, sound (style +
-moods), characters, the one-sentence idea. Everything the person said goes in their words.
+moods), characters, the one-sentence idea, and any named moves as name, duration, strength and
+what moves (card defaults marked as such). Everything the person said goes in their words.
 Everything you decided is marked as yours so they can veto it in one line.
+
+## Before the first full render
+
+- **Show options as one still sheet** when a choice is open (a transition, a lettering medium,
+  a palette): three to six variants side by side, picked in one message. Then render.
+- **Review stills for design**, not only for things overlapping (`references/craft-bar.md`).
+- **A picture that draws itself says so**: `kind: "drawing"` in the film's `meta`. A stipple dot
+  or a hatch changes far less than 0.5 % of the frame, so without it the gate calls a drawing
+  dead air; with it, dead air is judged over 1 s at a 0.02 % floor and a hand may rest half a
+  second between passes. `meta: { title, W, H, fps, bpm, durationFrames, kind: "drawing" }`.
+
+## Alive means real motion
+
+When someone asks for a subject to be "alive", "swimming" or "moving", an in-place loop reads as
+a GIF. The subject travels through a world that changes as it moves, and the camera follows.
+The worked example is the koi: `koi.ts` takes an optional `KoiLive` (time, amplitude, a pose on
+a path) and `koiWorld.ts` swims it through a pond much bigger than the frame, sliding under pads
+that are placed in the world, its wake spreading from its nose.
+
+The pattern:
+1. **Add motion as an optional input** to the subject's drawing function (`live?: KoiLive`).
+   With it absent, the code path is the still, untouched.
+2. **Guard the still**: render the still plate before and after with `still.mjs` and compare
+   the md5 it prints. The still must stay pixel-identical; if it moves, the refactor leaked.
+3. **Place the world in world units**, not screen units, so the scenery changes as the subject
+   moves; let the camera follow (`references/camera.md`).
+4. **Frame 0 of the living version equals the still** (same pose, same framing), so a film can
+   hand over from the still card to the living one without a seam.

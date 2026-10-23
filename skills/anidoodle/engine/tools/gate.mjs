@@ -6,21 +6,22 @@
 //   1 DETERMINISM  the same sampled frames drawn twice, at two different worker counts, in two
 //                  different orders. Byte-identical, or PSNR above 45 dB.
 //   2 CONTRACT     a static scan of every module the film draws through.
-//   3 DEAD AIR     no identical consecutive frames, no 15-frame window under 0.5 % changed.
+//   3 DEAD AIR     no identical consecutive frames, no half-second window under 0.5 % changed per 1/30 s.
 //
 // The gate NEVER writes to out/. It renders into .tmp/gate/ and it only ever READS the MP4 it is
 // pointed at, so running it can never damage a finished film.
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { readdirSync } from "node:fs";
-import { defaultOutput } from "./names.mjs";
+import { defaultOutput, requireFilm } from "./names.mjs";
 import { changedArea } from "./motion.mjs";
 
 const VAL = new Set(["adapter", "mp4", "samples", "scale", "workers"]);
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
-const film = pos[0] ?? "mechanicalLepidoptera";
+const film = opt["self-test"] ? null : requireFilm(pos[0], "gate", "node tools/gate.mjs <film> [--mp4 out/<film>.mp4] [--adapter html-player] [--samples 12] [--scale 1]\n       node tools/gate.mjs --self-test");
 const adapterName = opt.adapter ?? "html-player";
 const SAMPLES = Math.max(4, +(opt.samples ?? 12)), SCALE = +(opt.scale ?? 1);
 const TMP = resolve(".tmp/gate"); mkdirSync(TMP, { recursive: true });
@@ -42,7 +43,9 @@ const FORBIDDEN = [
   [/from\s+["']react["']/, "react import"], [/from\s+["']remotion["']/, "remotion import"], [/pencil\.tsx/, "pencil.tsx import"],
 ];
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-const motionViolations = (changed, meta) => {
+// windowChanged: the change per 1/30 s (for a 60 fps film, each frame against the one two back). The
+// 0.5 % floor is a 30 fps measure: at 60 fps the same motion changes half the area per frame.
+const motionViolations = (changed, meta, windowChanged = changed) => {
   const declared = (ranges, f) => ranges?.some(([from, to]) => f >= from && f < to) ?? false;
   const step = meta.step ?? (meta.onTwos ? 2 : 1);
   const explained = (f) => {
@@ -53,14 +56,15 @@ const motionViolations = (changed, meta) => {
   let run = 0; const still = [];
   for (let f = 1; f < changed.length; f++) { run = changed[f] === 0 ? run + 1 : 0; if (changed[f] === 0 && !explained(f) && run > pause) still.push(f); }
   const windowSize = drawing ? Math.max(2, Math.round(meta.fps)) : Math.max(2, Math.round(meta.fps / 2));
-  const windows = []; for (let f = 1; f + windowSize <= changed.length; f++) { let m = 0; for (let k = f; k < f + windowSize; k++) m = Math.max(m, changed[k]); if (m < floor && !Array.from({ length: windowSize }, (_, k) => f + k).every((i) => declared(meta.holds, i))) windows.push(f); }
+  const windows = []; for (let f = 1; f + windowSize <= changed.length; f++) { let m = 0; for (let k = f; k < f + windowSize; k++) m = Math.max(m, windowChanged[k]); if (m < floor && !Array.from({ length: windowSize }, (_, k) => f + k).every((i) => declared(meta.holds, i))) windows.push(f); }
   return { still, windows, windowSize };
 };
 const walk = (dir, out = []) => { for (const e of execFileSync("find", [dir, "-name", "*.ts", "-type", "f"]).toString().trim().split("\n").filter(Boolean)) out.push(e); return out; };
 
 const contractScan = () => {
   head(2, "CONTRACT  the art core cannot reach a clock, the network or a file");
-  const files = [...walk("src/canvas-core"), `src/hosts/page-${film}.ts`].filter((f) => existsSync(f));
+  // the worked example is part of the same tree at build time (tools/overlay.mjs): scan it too
+  const files = [...walk("src/canvas-core"), ...(existsSync("../example/src/canvas-core") ? walk("../example/src/canvas-core") : []), `src/hosts/page-${film}.ts`].filter((f) => existsSync(f));
   const hits = [];
   for (const f of files) { const src = stripComments(readFileSync(f, "utf8")); FORBIDDEN.forEach(([re, label]) => { const m = src.match(new RegExp(re.source, "g")); if (m) hits.push(`${f}: ${label} x${m.length}`); }); }
   say(hits.length === 0, `no forbidden call in ${files.length} art-core modules`, hits.length ? hits.slice(0, 6).join(" | ") : "Math.random, Date, performance.now, ctx.filter, network, image/font loads: none");
@@ -78,9 +82,12 @@ const deadAir = async (mp4, meta) => {
   let changed; try { changed = await changedArea(mp4, W, H); } catch (e) { say(false, "decode MP4", e.message); return; }
   const n = changed.length;
   say(n === meta.durationFrames, "MP4 frame count matches film", `${n}/${meta.durationFrames}`);
-  const { still, windows: win, windowSize } = motionViolations(changed, meta);
+  const stride = Math.max(1, Math.round(meta.fps / 30));
+  let perThirtieth = changed; if (stride > 1) try { perThirtieth = await changedArea(mp4, W, H, 4, stride); } catch (e) { say(false, "decode MP4", e.message); return; }
+  const { still, windows: win, windowSize } = motionViolations(changed, meta, perThirtieth);
   const merged = []; win.forEach((f) => { const l = merged[merged.length - 1]; if (l && f <= l[1]) l[1] = f + windowSize; else merged.push([f, f + windowSize]); });
   for (const [from, to, reason] of meta.locked ?? []) console.log(`        LOCKED ${from}-${to}: ${reason}; violations remain failures`);
+  for (const [from, to, reason] of meta.holds ?? []) if (reason) console.log(`        HOLD ${from}-${to}: ${reason}`);
   say(still.length === 0, "no unexplained identical consecutive frames", still.length ? still.slice(0, 20).join(", ") : "none");
   say(merged.length === 0, `no ${windowSize}-frame window under ${meta.kind === "drawing" ? "0.02" : "0.5"}% changed`, merged.map(([a, b]) => `${a}-${b}`).join(", ") || "none");
   const mvt = changed.slice(1).sort((a, b) => a - b);
@@ -102,14 +109,19 @@ const run = async () => {
   if (!p.ok) { console.log("\nGATE: CANNOT RUN"); process.exit(2); }
 
   head(1, "DETERMINISM  the same frame, drawn two different ways, is the same frame");
-  const s1 = await mod.open(film, { scale: SCALE, workers: 1 });
+  // session 1 is COLD (no warm-up draws) and forward; session 2 is warmed and reversed. A frame that
+  // depends on what was drawn before it (leaked context state, a cache key missing a term) differs.
+  const s1 = await mod.open(film, { scale: SCALE, workers: 1, warm: false });
   const meta = await s1.info();
   const N = meta.durationFrames;
   const bounds = [...new Set([0, N - 1, ...(meta.shots ?? []).flatMap((s) => [s.start, s.end - 1])])];
   const extra = Math.max(0, SAMPLES - bounds.length);
   const spread = Array.from({ length: extra }, (_, i) => Math.round(((i + 1) * (N - 1)) / (extra + 1)));
   const frames = [...new Set([...bounds, ...spread])].sort((a, b) => a - b);
-  const h1 = []; for (const f of frames) h1.push(await s1.hash(f, 0)); // forward, one page
+  // the PNGs themselves are kept: if two hashes disagree, the pixels compared are THOSE pixels, not
+  // a fresh redraw that may not reproduce the history that made them differ
+  const md5 = (b) => createHash("md5").update(b).digest("hex"), p1 = [], p2 = new Array(frames.length);
+  const h1 = []; for (const f of frames) { const png = (await s1.frame(f, 0)).png; p1.push(png); h1.push(md5(png)); } // forward, one cold page
   const art = s1.artifact?.() ?? null;
   const aud1 = await s1.audio(48000);
   await s1.close();
@@ -117,7 +129,7 @@ const run = async () => {
   const W2 = 3;
   const s2 = await mod.open(film, { scale: SCALE, workers: W2 });
   const h2 = new Array(frames.length);
-  for (let i = frames.length - 1; i >= 0; i--) h2[i] = await s2.hash(frames[i], i); // reversed, spread over 3 pages
+  for (let i = frames.length - 1; i >= 0; i--) { const png = (await s2.frame(frames[i], i)).png; p2[i] = png; h2[i] = md5(png); } // reversed, spread over 3 warmed pages
   const aud2 = await s2.audio(48000);
 
   const same = frames.filter((_, i) => h1[i] === h2[i]).length;
@@ -127,9 +139,7 @@ const run = async () => {
     for (let i = 0; i < frames.length; i++) {
       if (h1[i] === h2[i]) continue;
       const a = resolve(TMP, `a${frames[i]}.png`), b = resolve(TMP, `b${frames[i]}.png`);
-      const sA = await mod.open(film, { scale: SCALE, workers: 1 });
-      writeFileSync(a, (await sA.frame(frames[i], 0)).png); await sA.close();
-      writeFileSync(b, (await s2.frame(frames[i], i)).png);
+      writeFileSync(a, p1[i]); writeFileSync(b, p2[i]);
       const v = psnr(a, b); worst = Math.min(worst, v);
       console.log(`        frame ${frames[i]}: PSNR ${v === Infinity ? "inf" : v.toFixed(2)} dB`);
     }
@@ -139,15 +149,15 @@ const run = async () => {
     // of a cache key that does not name everything its pixels depend on.
     const bad = frames.find((_, i) => h1[i] !== h2[i]);
     if (bad !== undefined) {
-      const c0 = await mod.open(film, { scale: SCALE, workers: 1 }); const cold = await c0.hash(bad, 0); await c0.close();
+      const c0 = await mod.open(film, { scale: SCALE, workers: 1, warm: false }); const cold = await c0.hash(bad, 0); await c0.close();
       const culprits = [];
       for (const pre of frames.filter((f) => f !== bad)) {
-        const c = await mod.open(film, { scale: SCALE, workers: 1 });
+        const c = await mod.open(film, { scale: SCALE, workers: 1, warm: false });
         await c.hash(pre, 0); const h = await c.hash(bad, 0); await c.close();
         if (h !== cold) culprits.push(pre);
       }
       console.log(culprits.length
-        ? `        DIAGNOSIS: frame ${bad} is ORDER-DEPENDENT. Drawing frame(s) ${culprits.join(", ")} first changes it.\n                   That is a cache key that does not name everything its pixels depend on.`
+        ? `        DIAGNOSIS: frame ${bad} is ORDER-DEPENDENT. Drawing frame(s) ${culprits.join(", ")} first changes it.\n                   That is a cache key that does not name everything its pixels depend on,\n                   or state one frame leaves behind for the next.`
         : `        DIAGNOSIS: frame ${bad} is stable within a session; the difference is between sessions.`);
     }
   }
@@ -173,6 +183,7 @@ const run = async () => {
 };
 const selfTest = async () => {
   let wrong = 0;
+  if (!existsSync("test/fixtures")) { console.error("gate --self-test: the fixtures are not in this install (the directory copy leaves them out). Clone https://github.com/alexgreensh/anidoodle to run it."); process.exit(2); }
   for (const file of readdirSync("test/fixtures").filter((f) => f.endsWith(".mjs")).sort()) {
     const fixture = (await import(`../test/fixtures/${file}`)).default;
     const { meta, render, expected } = fixture;
