@@ -11,9 +11,10 @@
 // Thresholds are calibrated so the loved reference (Kevin Ngo piano) PASSES and the ghost fixture
 // (slow pad, long tail, no rhythm, no cadence) FAILS; see tools/music.mjs `guards`.
 import { onsets, mono, loudness } from "./meter";
-import { renderPiece, type Rendered } from "./render";
-import { pcOf } from "./theory";
-import type { Piece, Role } from "./plan";
+import { renderPiece, type Rendered, type RenderOpts, type VoiceCache } from "./render";
+import { perform, type Performance } from "./perform";
+import { pcOf, nameOf } from "./theory";
+import { beatsPerBar, type Piece, type Role } from "./plan";
 
 export const GHOST = { maxOnsetsPerBeat: 1.0, minSustainedShare: 0.6, reverbWithinDb: -12, windowBars: 4, fallbackWindowS: 8 };
 
@@ -61,8 +62,11 @@ export const cadenceTimes = (r: Rendered) => {
 
 /** Reverb-to-dry per bar (dB). Pass: every sounding bar >= 10 dB under. */
 export const reverbCheck = (r: Rendered, sr: number) => {
-  const bpb = r.piece.plan.meter === "3/4" ? 3 : r.piece.plan.meter === "6/8" ? 2 : 4, total = r.piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0), bars: number[] = [];
+  const bpb = beatsPerBar(r.piece.plan.meter), total = r.piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0), bars: number[] = [];
+  // a bar inside a declared breath (authored silence) holds only the ring-out of the phrase before it: not judged, as in the ghost guard
+  const rest = (b: number) => (r.piece.arrangement ?? []).some((x) => x.kind === "breath" && b >= x.from * bpb && b < (x.from + x.bars) * bpb);
   for (let b = 0; b < total; b += bpb) {
+    if (rest(b)) continue;
     const a = Math.round(r.perf.sec(b) * sr), e = Math.min(r.L.length, Math.round(r.perf.sec(b + bpb) * sr)); let ew = 0, ed = 0;
     for (let c = 0; c < 2; c++) for (let i = a; i < e; i++) { ew += r.wet[c][i] ** 2; ed += r.dry[c][i] ** 2; }
     if (ed > 1e-9) bars.push(10 * Math.log10((ew + 1e-12) / ed));
@@ -80,27 +84,63 @@ const bandDb = (L: Float32Array, R: Float32Array, sr: number, spans: [number, nu
   return spans.map(([a, b]) => { let e = 0; for (let i = Math.round(a * sr); i < Math.min(z.length, Math.round(b * sr)); i++) e += z[i] * z[i]; return 10 * Math.log10(e / Math.max(1, (b - a) * sr) + 1e-15); });
 };
 
-/** Masking: per bar where the melody sounds, melody band energy minus the loudest other role's (dB). Pass: >= 3 dB in >= 80 % of those bars. */
-export const maskingCheck = (piece: Piece, sr: number, o: { seconds?: number; tempo?: number } = {}) => {
+/**
+ * Masking, in three steps so a pool can render the roles in parallel (tools/music.mjs check):
+ * `maskingPlan` (which roles, which bars; each role plays exactly as it does in the mix: the same key
+ * presses, the same final ritard), `roleBandDb` (one role rendered alone, its 500 Hz-4 kHz energy per
+ * bar), `maskingFromBands` (the verdict). `maskingCheck` runs all three in turn.
+ */
+export const maskingPlan = (piece: Piece, o: { seconds?: number; tempo?: number; perf?: Performance; cache?: VoiceCache } = {}) => {
   const roles = [...new Set(piece.parts.flatMap((p) => p.notes.map((n) => n.role)))] as Role[];
   if (!roles.includes("melody")) return null;
-  const only = (r: Role) => ({ ...piece, parts: piece.parts.map((p) => ({ ...p, notes: p.notes.filter((n) => n.role === r) })) });
-  const base = { seconds: o.seconds, tempo: o.tempo, master: "none" as const };
-  const mel = renderPiece(only("melody"), sr, base);
-  const bpb = piece.plan.meter === "3/4" ? 3 : piece.plan.meter === "6/8" ? 2 : 4, total = piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0);
-  const spans: [number, number][] = []; for (let b = 0; b < total; b += bpb) spans.push([mel.perf.sec(b), mel.perf.sec(b + bpb)]);
+  const perf = o.perf ?? perform(piece, o.tempo ?? piece.plan.tempo, { expressive: true });
+  const played = (r: Role): Performance => ({ ...perf, parts: perf.parts.map((p) => ({ ...p, keys: p.keys.filter((k) => k.role === r) })) });
+  const bpb = beatsPerBar(piece.plan.meter), total = piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0);
+  const spans: [number, number][] = []; for (let b = 0; b < total; b += bpb) spans.push([perf.sec(b), perf.sec(b + bpb)]);
   const melNotes = piece.parts.flatMap((p) => p.notes.filter((n) => n.role === "melody"));
   const sounding = spans.map((_, i) => melNotes.some((n) => n.t < (i + 1) * bpb && n.t + n.d > i * bpb));
-  const m = bandDb(mel.L, mel.R, sr, spans);
-  const others = roles.filter((r) => r !== "melody").map((r) => { const x = renderPiece(only(r), sr, base); return { role: r, db: bandDb(x.L, x.R, sr, spans) }; });
-  const margins = spans.map((_, i) => (sounding[i] ? m[i] - Math.max(...others.map((x) => x.db[i]), -300) : NaN)).filter((x) => Number.isFinite(x));
+  return { roles, spans, sounding, opts: (r: Role): RenderOpts => ({ seconds: o.seconds, tempo: o.tempo, master: "none", cache: o.cache, perf: played(r), mixKeys: perf.parts.map(p => p.keys) }) };
+};
+export type MaskingPlan = NonNullable<ReturnType<typeof maskingPlan>>;
+export const roleBandDb = (piece: Piece, sr: number, opts: RenderOpts, spans: [number, number][]) => { const x = renderPiece(piece, sr, opts); return bandDb(x.L, x.R, sr, spans); };
+export const maskingFromBands = (pl: MaskingPlan, bands: Partial<Record<Role, number[]>>) => {
+  const m = bands.melody!, others = pl.roles.filter((r) => r !== "melody").map((r) => ({ role: r, db: bands[r]! }));
+  const margins = pl.spans.map((_, i) => (pl.sounding[i] ? m[i] - Math.max(...others.map((x) => x.db[i]), -300) : NaN)).filter((x) => Number.isFinite(x));
   const ok = margins.filter((x) => x >= 3).length / Math.max(1, margins.length);
   return { pass: ok >= 0.8, shareOfBarsClear: ok, worstMarginDb: Math.min(...margins), meanMarginDb: margins.reduce((a, b) => a + b, 0) / Math.max(1, margins.length) };
 };
+/** Masking: per bar where the melody sounds, melody band energy minus the loudest other role's (dB). Pass: >= 3 dB in >= 80 % of those bars. */
+export const maskingCheck = (piece: Piece, sr: number, o: { seconds?: number; tempo?: number; perf?: Performance; cache?: VoiceCache } = {}) => {
+  const pl = maskingPlan(piece, o); if (!pl) return null;
+  return maskingFromBands(pl, Object.fromEntries(pl.roles.map((r) => [r, roleBandDb(piece, sr, pl.opts(r), pl.spans)])));
+};
 
 /** Everything at once for a rendered piece. */
-export const guardReport = (r: Rendered, sr: number, seconds: number, o: { masking?: boolean } = {}) => {
-  const bpb = r.piece.plan.meter === "3/4" ? 3 : r.piece.plan.meter === "6/8" ? 2 : 4;
-  const ghost = ghostCheck([r.L, r.R], sr, { bpm: r.tempo, beatsPerBar: bpb, wet: r.wet, dry: r.dry, cadences: cadenceTimes(r) });
-  return { ghost: { pass: ghost.pass, failures: ghost.failures, windows: ghost.windows.length, minOnsetsPerBeat: Math.min(...ghost.windows.map((w) => w.onsetsPerBeat)), maxSustainedShare: Math.max(...ghost.windows.map((w) => w.sustainedShare)) }, reverb: reverbCheck(r, sr), masking: o.masking === false ? null : maskingCheck(r.piece, sr, { seconds, tempo: r.tempo }), lufs: loudness([r.L, r.R], sr).integrated };
+/** The documented exemption, in seconds: each declared breath section (authored silence), padded 1 ms so a
+ *  ghost window whose edge IS the breath edge still counts as inside it. guardReport passes these to ghostCheck. */
+export const breathSpans = (r: Pick<Rendered, "piece" | "perf">, bpb: number): [number, number][] =>
+  (r.piece.arrangement ?? []).filter((x) => x.kind === "breath").map((x) => [r.perf.sec(x.from * bpb) - 1e-3, r.perf.sec((x.from + x.bars) * bpb) + 1e-3]);
+
+export const guardReport = (r: Rendered, sr: number, seconds: number, o: { masking?: boolean; cache?: VoiceCache; /** each role's band energy, rendered elsewhere (a worker pool) from maskingPlan */ bands?: Partial<Record<Role, number[]>> } = {}) => {
+  const bpb = beatsPerBar(r.piece.plan.meter);
+  const breaths = breathSpans(r, bpb);
+  const ghost = ghostCheck([r.L, r.R], sr, { bpm: r.tempo, beatsPerBar: bpb, wet: r.wet, dry: r.dry, cadences: cadenceTimes(r), breaths });
+  return { ghost: { pass: ghost.pass, failures: ghost.failures, windows: ghost.windows.length, minOnsetsPerBeat: Math.min(...ghost.windows.map((w) => w.onsetsPerBeat)), maxSustainedShare: Math.max(...ghost.windows.map((w) => w.sustainedShare)) }, reverb: reverbCheck(r, sr), masking: o.masking === false ? null : o.bands ? maskingFromBands(maskingPlan(r.piece, { seconds, tempo: r.tempo, perf: r.perf })!, o.bands) : maskingCheck(r.piece, sr, { seconds, tempo: r.tempo, perf: r.perf, cache: o.cache }), lufs: loudness([r.L, r.R], sr).integrated };
+};
+
+/**
+ * Where the master's peak is, for the note that the -1 dBTP ceiling capped the gain: the sample peak
+ * of the mastered mix (the true peak sits within a sample of it), its bar and beat, and the parts
+ * piling up there: each stem's peak within 10 ms of it (needs a render with `stems: true`), loudest
+ * first, the ones within 10 dB of the loudest, with the notes they are sounding.
+ */
+export const peakReport = (r: Rendered, sr: number) => {
+  let at = 0, m = 0; for (let i = 0; i < r.L.length; i++) { const a = Math.max(Math.abs(r.L[i]), Math.abs(r.R[i])); if (a > m) { m = a; at = i; } }
+  const t = at / sr, bpb = beatsPerBar(r.piece.plan.meter), total = r.piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0);
+  let lo = -(r.piece.plan.pickupBeats ?? 0), hi = total + 16; for (let k = 0; k < 40; k++) { const mid = (lo + hi) / 2; if (r.perf.sec(mid) <= t) lo = mid; else hi = mid; }
+  const b = Math.round(lo * 4) / 4, bar = Math.floor(b / bpb + 1e-9), beat = +(b - bar * bpb + 1).toFixed(2), w = Math.round(0.01 * sr);
+  const parts = Object.entries(r.stems).map(([id, [L, R]]) => { let p = 0; for (let i = Math.max(0, at - w); i < Math.min(L.length, at + w); i++) p = Math.max(p, Math.abs(L[i]), Math.abs(R[i]));
+    const pi = r.piece.parts.findIndex((x) => x.id === id), notes = pi < 0 ? [] : [...new Set(r.perf.parts[pi].keys.filter((k) => k.t <= t + 0.01 && k.off + 0.05 >= t).map((k) => nameOf(k.p)))];
+    return { id, db: 20 * Math.log10(p + 1e-12), notes: r.piece.parts[pi]?.role === "drum" ? [] : notes }; }).filter((x) => x.db > -120).sort((a, b) => b.db - a.db);
+  return { sec: t, bar: bar + 1, beat, dbfs: 20 * Math.log10(m + 1e-12), parts: parts.filter((x) => x.db >= (parts[0]?.db ?? 0) - 10).slice(0, 6) };
 };

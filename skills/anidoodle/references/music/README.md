@@ -1,12 +1,40 @@
-# Music: composed as data, synthesized in code, measured, then heard once
+# Music: composed as data, performed, measured, then heard once
 
-Every score in anidoodle is **100 % procedural**: you write the notes as data, the engine performs
-and synthesizes them in code. No samples, no recordings, no licensed audio, ever. You cannot hear
-what you make, so every choice is a number, every number is measured, and a human hears 8 seconds
-before anything ships.
+Every score in anidoodle is written as data and every voice is the engine's own: you write the
+notes, the engine performs them. You cannot hear what you make, so every choice is a number, every
+number is measured, and a human hears 8 seconds before anything ships.
 
-Code: `engine/src/canvas-core/music/`. Tool: `engine/tools/music.mjs`. The old music-box recipe
-lives on, verbatim, as the default style preset: [`styles/music-box.md`](styles/music-box.md).
+Eight acoustic instruments also play **recordings of the real thing**, from an optional sound pack
+you install separately: grand and upright piano, concert harp, marimba, vibraphone, glockenspiel,
+tubular bells and timpani, plus three recorded rooms. Everything else, and every score on a machine
+without the pack, is synthesized in code exactly as before. See
+[Recorded instruments](#recorded-instruments-the-optional-sound-pack) below.
+
+Code: `engine/src/canvas-core/music/`. Tools: `engine/tools/music.mjs`, `engine/tools/soundfetch.mjs`.
+To check a finished film's sound: `engine/tools/soundcheck.mjs` and `soundsheet.mjs` ([how](sound-design.md#checking-the-finished-films-sound)).
+
+**Start here: [`compose.md`](compose.md).** It takes you from a brief to an original score. A style
+is a vocabulary: sound, grooves, harmony language, melody rules, arrangement grammar. It is never
+notes. You compose every note, and nothing is filled in for you. There is no default style.
+
+Pages:
+- [`compose.md`](compose.md): the workflow, the material format, craft, and the never-reuse rule.
+- [`theory/`](theory/README.md): the craft behind it: melody, harmony, rhythm, mood mapping, form and
+  orchestration, sound (psychoacoustics for voicing and mixing). Cited, and measured by
+  `node tools/music.mjs craft`.
+- [`styles/vocabularies.md`](styles/vocabularies.md): all 21 style vocabularies, the 15 groove
+  families and the section kinds. It is generated from the code.
+- [`styles/lofi-electronic.md`](styles/lofi-electronic.md): the lo-fi electronic vocabulary in
+  depth, and the stem balance meter.
+- [`styles/music-box.md`](styles/music-box.md): the original music-box recipe's sound numbers and
+  the scar story behind the guards.
+- [`sounds-licenses.md`](sounds-licenses.md): where the recordings come from, and the attribution
+  CC BY asks for. Required reading before you redistribute a pack.
+
+**Demos are not scores.** The pieces in `pieces/` (samplers, families, nocturne, our launch scores)
+were written to prove the synth and the meters, and one of them is our own film's score. They are
+listening references and the novelty corpus (`node tools/music.mjs list`). A film never plays them:
+`node tools/music.mjs novelty` fails a score that sounds like them or quotes them.
 
 ## The pipeline
 
@@ -19,16 +47,16 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    harmony list.
    - The plan names:
      - one **style**;
-     - a tempo and a meter (3/4, 4/4, 6/8, 12/8);
+     - a tempo and a meter (2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8, 12/8);
      - **sections**, each with a mood (or a blend `[a, b, w]`), a key and mode, the melody types,
        a dynamic level `[start, end]` 0..1, and an ending;
      - `repeatable` / `optional` / `pickup` / `variations` flags, which let it fit any length.
    - Notes are written in a bar-checked notation. A bar that doesn't add up to the meter throws:
      ```ts
-     line(3, "C5:2 Bb4:.5 Ab4:.5 | Bb4:2 Eb4:1 | [Ab1 Eb2 Ab2]:3@0.8", { role: "melody", bpb: 3 })
+     line(<start beat>, "<NOTE>:<beats> <NOTE>:<beats> | [<NOTE> <NOTE>]:<beats>@<vel> | r:<beats>", { role, bpb })
      ```
    - Roles: `melody`, `inner`, `bass`, `accomp`, `color`, `drum`.
-   - Generators may draft. **You compose**:
+   - Nothing generates notes. **You compose** (compose.md):
      - real harmony and voice-leading;
      - a memorable motif and phrases that ask and answer;
      - cadences.
@@ -43,32 +71,185 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    - humanize from `rng(seed)`, smoothed so it correlates across a phrase.
 
    Parts with `opts.grid` (music box, chiptune, drive) stay mechanical on purpose.
-3. **Synthesize.** Each part is an instrument:
+3. **Perform the instruments.** Each part is an instrument:
 
    | Instrument | How it's made |
    |---|---|
    | `piano` | Modal, physics-shaped: inharmonic partials, 2-3 detuned strings with two-stage decay, velocity-dependent hammer brightness and strike comb, knock, soundboard modes, dampers, sustain pedal with sympathetic strings, stereo by pitch. See ADVISORY 4.1. |
    | `musicBox`, `bell` | The recipe's numbers |
    | `celesta`, `marimba`, `vibes` | Modal bars |
-   | `harp`, `guitar` | Extended Karplus-Strong |
-   | `strings` | Detuned PolyBLEP saws, slow bow, delayed vibrato |
+   | `harp`, `guitar` | Extended Karplus-Strong: pick position, two polarisations, a commuted body (harp fitted to CC0 recordings). `kind`: nylon (default), steel, electric (`pickup`: neck or bridge, `drive` into a clean amp) |
+   | `strings` | A section of `players` (default 10, divided across chords), each with its own timing, tuning, drift, vibrato and bow noise, through measured violin, viola and cello bodies. `pizz: true` plucks |
    | `fmBell`, `ePiano` | 2-operator FM |
    | `pulse`, `triangle`, `noiseDrum` | NES-style chip voices |
-   | `kick`, `snare`, `hat`, `bass`, `vinyl` | Drums, bass and texture |
+   | `kick`, `snare`, `hat`, `vinyl` | Drums and texture |
+   | `bass` | `kind`: finger (default, electric through an amp, `drive`), pick, upright (body, pitch settle, thump), synth (saw + sub into a 24 dB filter, glide) |
+   | `warmPad`, `softPluck`, `sub` | The lo-fi electronic kit (`lofiKit.ts`): detuned-saw pad, filtered pluck with ping-pong delay, sine sub |
+   | `organ` | Drawbar ranks (harmonics 1 2 3 4 6 8), chorus, tremulant |
+   | `brass` | Section of `players` (default 3): harmonics that brighten with loudness, a lip scoop, breath, bell formants (`type`: trumpet, trombone or horn; `bright` < 0.75 = horn) |
+   | `woodwind` | Flute (chiff, jet and breath noise, breath vibrato) or `reed: true` clarinet (odd harmonics, reed noise). Touching notes slur |
+   | `choir` | Singers (`singers`, default 8) with a glottal source, jitter, shimmer and breath, through 5 formants per vowel. `vowel`: a e i o u, or a sequence (`"uoa"`) that morphs across each note |
+   | `timpani` | Tuned membrane modes, a pitch settle, a mallet thump (`pitch` tunes it in a drum lane) |
+   | `leadSynth` | Mono saw + square, portamento, a filter envelope, blooming vibrato |
+   | `bowedSolo` | A bowed waveguide string (violin, or `cello: true`): touching notes are one bow with a finger slide, delayed vibrato, measured body |
+
+   Eight of these play recordings of real instruments when the sound pack is installed. The table
+   below is what the engine builds; [Recorded instruments](#recorded-instruments-the-optional-sound-pack)
+   is what it plays instead.
+
+   The modelled voices are approximations: cinematic and stylized, never "realistic". Every note
+   varies (seeded), so repeats never clone. A human listens before one carries a film. A shipped
+   score sets `legacy: true` on its piece to keep the sound it shipped with, and never reaches the
+   sampler at all.
 4. **Room.** The style chooses it:
    - music box: one reflection, no tail;
    - nocturne and lullaby: a small room;
    - cinematic and drive: a hall;
    - chiptune: nothing.
+   With the pack installed, a style may name a recorded room instead and the engine convolves with
+   the recording.
 5. **Master.**
-   - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor.
-     If the peak blocks the gain, the loudness goes down. The cure is musical (see "Peaks" below).
-   - **Dense styles** (chiptune, lo-fi, drive): **-14 LUFS** through a look-ahead true-peak limiter.
+   - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor on the master.
+     Struck stems (plucks, plucked basses, piano, mallets and bells, timpani) first go through a transient-aware
+     gain in the mix (only the pick or hammer spike above the note's own body comes down, up to 6 dB, the stem's
+     level unchanged), so their attacks don't hold the master under the ceiling. `RenderOpts.gentleGlue` (a <= 1 dB
+     2:1 bus glue) exists but is off by default. If the peak still blocks the gain, the loudness goes
+     down. The cure is musical (see "Peaks" below): a solo piano with a 10 LU range (the nocturne demo) masters at -17.5.
+   - **Dense styles** (lofiElectronic, lofi, drive, house, synthwave, hipHop, rock, chiptune): **-14 LUFS** through a look-ahead true-peak limiter, then a static trim if an inter-sample peak still passes -1 dBTP.
+   - **A film's whole mix** (score plus effects, or effects alone) goes through the delivery master last:
+     `sound-design.md`, The finished mix.
 
 A film's `audio` is `filmAudio(piece, seconds)`, which returns `(sampleRate) => [L, R]` at exactly
-the film's length. `engine/src/canvas-core/score.ts` is the scaffold example.
+the film's length. It fits the score first (`fitScore`, below), so the music ends on its phrase at
+the last frame and is never chopped. Any film mix that renders a score (sound effects included) must
+fit it the same way. `engine/src/canvas-core/score.ts` is an empty skeleton: `filmScore(material,
+fps, frames)` composes your material and fits it.
+
+## Recorded instruments: the optional sound pack
+
+The pack is a separate download (about 390 MB), not part of the skill. Once it is installed, eight
+acoustic parts play recordings of real instruments and three rooms are recorded impulse responses.
+Without it every score still plays, on the modelled voices, unchanged.
+
+Every stereo recording is made phone-safe when its bank loads (`RECORDING_WIDTH` in `sampler.ts`): a
+side whose body (150 Hz to 2 kHz) is clearly inverted is flipped back and the body is narrowed, while
+the air above 2 kHz keeps its width, so a mono fold keeps the whole instrument.
+
+
+```bash
+node tools/soundfetch.mjs list          # the install directory and what is installed; no network
+node tools/soundfetch.mjs get harp rooms # the one command that downloads: hash, unpack, install (`all` = 373 MB)
+node tools/soundfetch.mjs decline       # the user said no: remembered, nobody is asked again
+node tools/soundfetch.mjs where         # the install directory
+node tools/soundfetch.mjs verify        # re-hash every installed file
+node tools/soundfetch.mjs remove <id>   # drop one instrument, or `rooms`
+```
+
+**The user decides, once.** Before the first score of a session, run `list`. When nothing is
+installed and it does not say the recordings were declined, ask the user in plain words whether
+they want real recorded instruments, and name the size: the whole pack is 373 MB, the grand piano
+alone 233 MB, and one piece usually needs one instrument plus `rooms` (0.4 MB). Yes: `get` those
+ids. No: `decline`, which is remembered across sessions. Never download without that answer.
+`music.mjs` and the film tools print the same offer, with the ids and sizes the piece in hand
+needs, whenever a part falls back to a code-built voice.
+
+`get` names the ids it wants, or `all`. It installs to `ANIDOODLE_SOUNDS`, or
+`~/.anidoodle/sounds`, and refuses any archive whose size or sha256 disagrees with the index
+before it unpacks. `ANIDOODLE_SOUNDS_URL` points the fetch at a different release; point it at a
+local directory or a `file://` URL and `list` also prints what is available there, since a local
+source is read off disk. Against the GitHub release `list` reads the installed manifest alone and
+prints that the index is fetched by `get` only. The engine finds an installed pack on its own; to
+render from a pack directory without installing it, pass `--sounds <dir>` to `music.mjs`.
+
+| Part | `variant` | Recording | Range | What it brings |
+|---|---|---|---|---|
+| `piano` | | Grand Piano, Steinway B | A0 to G#7 | 3 velocity layers, pedal-down resonance (`sus`) and key-release (`rel`) |
+| `piano` | `"upright"` | Upright Piano, Knight | A0 to C8 | 2 layers, key-release only, no pedal resonance |
+| `harp` | | Concert Harp | D1 to G7 | rings out, nothing damps it |
+| `marimba` | | Marimba | D2 to C7 | 3 layers, rings out. Sparse: some notes are a recording shifted up to 3 semitones |
+| `vibes` | | Vibraphone | F3 to F6 | 3 layers, damped, so the pedal holds it |
+| `glockenspiel` | | Glockenspiel | G5 to C8 | 3 layers, rings out. Sparse: up to 3 semitones |
+| `bell` | `"tubular"` | Tubular Bells 1 | C4 to F#5 | 2 layers, rings out |
+| `timpani` | | Timpani | C#2 to B3 | 3 layers, rings out |
+
+The recordings are from VCSL, CC0. Ranges and the layer counts above are read from the installed
+pack's own `manifest.json`; `check` names a sparse bank when it meets one. `bell` without
+`"tubular"`, and every other instrument in the table above, are still modeled.
+
+Not recorded, and still synthesized in code: strings, guitar, bass, brass, woodwinds, choir,
+celesta, music box, the electric pianos and the acoustic drum kit. Synths, lo-fi colour, electronic
+drums and every sound effect are code and stay code.
+
+### What changes when you write for a recording
+
+- **Write inside the range.** A note outside the bank's range throws and the render stops. The grand
+  reaches A0; the timpani stops at B3, so anything above B3 in a timpani part needs another
+  instrument. Inside the range every note plays: the engine takes the nearest recorded pitch.
+- **The decay is the instrument's own.** A low grand note rings for tens of seconds and nothing
+  trims it to fit the tail. Let the low notes ring and give them room.
+- **The pedal is a pedal.** A `sus` zone is the strings ringing with the dampers lifted, played
+  instead of the ordinary zone for any note struck while the pedal is down; a `rel` zone is the
+  damper coming back, added quietly at key-up. `perform.ts` moves the pedal just after each harmony
+  change, so write pedal changes where the harmony changes. `opts: { pedal: false }` holds it up.
+- **Soft playing keeps a real attack.** The Steinway bank has three velocity layers and its source
+  was normalized, so soft notes come from the soft recording with the modeled piano's velocity law
+  rather than a quiet copy of a loud one. Do not add an attack that isn't there.
+- **Between layers and between keys, the tone follows the real takes.** A velocity between two
+  layers plays the louder take softened to the colour read between the real takes of that key
+  (a softer blow is darker, not only quieter), and a key between two recordings takes the colour
+  of the recordings either side, so a moved take does not drag its body resonances along. Both
+  piano banks do this; `opts: { velocityTone: "lowpass" }` brings back the older single filter.
+  On the grand, a take whose treble stands out from the takes either side, or a corner in the
+  register between two neighbouring takes, gets a fixed gentle shelf when the bank loads: the
+  duller take is lifted at most 4 dB and the brighter one comes down by the rest.
+- **Key-up lets the bass hum.** On the grand the felt stops the upper partials at once while the
+  lowest strings keep a low hum for a moment, as the recorded release takes do.
+  `opts: { release: "flat" }` damps every frequency at one rate.
+- **Measure before you tune.** `node tools/pianoruler.mjs` holds each recording out in turn, plays
+  it from what is left and scores the gap in the real piano's own soft-to-loud steps (1.0 = a
+  whole step off). Change one thing, rerun, keep it only if the number moves the right way.
+- **A real marimba's low notes are rich.** D2 to C4 carries as much as the top of the instrument.
+  Keep bass lines out of the melody's register rather than reaching down for the modeled marimba's
+  thin bass.
+- **Sparse banks name themselves.** Marimba and glockenspiel are flagged `sparse`, so a note in a
+  gap is a shifted recording. `check` says so on the `voices` line rather than hiding it.
+
+### Picking a room
+
+| Room | rt60 | Where the recording is from |
+|---|---|---|
+| `live-room` | 0.2 s | Genesis 6 Studio live room, University of York |
+| `small-room` | 0.4 s | Arthur Sykes Rymer Auditorium, University of York |
+| `recital-hall` | 1.8 s | Jack Lyons Concert Hall, University of York |
+
+A style's `space.room` names one; `node tools/music.mjs --room <id> ...` overrides it for one run.
+An id that is not installed keeps the synthesized space, so the same command is safe with no pack.
+Pick the room for the size of the room, not the length of the piece: `live-room` for a take that
+should feel close and dry, `small-room` for a nocturne or a lullaby, `recital-hall` when seats are
+in the room. The reverb guard still runs: a recorded hall that pushes the late tail within 10 dB of
+the dry mix fails `check` like any other space.
+
+### Checking what actually played
+
+`check` and `render` print one line naming every part and which side of the split it took:
+
+```
+voices   recordings: lead (piano), accomp (piano.upright); modeled: bass (bass), drums (kick)
+```
+
+Anything that should have played a recording and did not is a part whose notes fall outside the
+bank's range, or a part that opted out.
+
+A part opts out with `opts: { sampled: false }`, which is how you hear a modeled voice beside a
+recorded one on purpose, and how a pitch or a register the recording cannot cover stays safe. An
+opted-out part renders bit-identical audio to the same part with no pack installed, so the opt-out
+is never a guess.
 
 ## Any length, never hard-coded
+
+`fitScore(piece, seconds)` first calls the piece's own `refit(seconds)` if it has one. A composed
+piece repeats or drops its `stretch` section, so it still lands on its outro. Then it runs
+`fitToDuration`.
 
 `fitToDuration(piece, seconds)` tries every form:
 - with some `optional` sections dropped (dropping music costs more than nudging the tempo);
@@ -80,34 +261,50 @@ It picks the form whose tempo is closest to the written one. If no full form fit
 the piece's `shortForm`. A section's `pickup` travels with it: wherever a section lands, its own
 upbeat leads into it.
 
-Example: the nocturne "Window Light" gives
-- the short form (the 8-second phrase, restated) at 15 s;
-- the full piece at 45 s;
-- intro, theme, theme (in octaves), build, coda at 60 s;
-- six theme/climax cycles with rotating variations at 180 s.
+A hand-written piece with a short form, repeatable sections and optional sections can fit anything
+from a quarter of its length to many times it, and it still ends on its cadence.
 
-## Styles (11) and moods (15)
+A form that already fits keeps its tempo: when the last note plus the tail lands within max(0.5 s,
+one beat) of the length, `fitScore` changes nothing and the tail takes up the difference (the final
+ritard alone would otherwise nudge the tempo). **Music that must hit exact picture moments** (a drop
+on a cut, a sting on a reveal) is composed to the length and rendered without `--fit`, or uses the
+beat-grid mode the launch films use (`gridScore` in `launchTemplate.ts`), where the score plays at
+the film's bpm exactly and every cut sits on a downbeat. A fit that changes the tempo moves every
+hit with it.
 
-Both are rows of numbers in `tables.ts`. A brief names rows, never adjectives. Each row stays
-`unconfirmed` until a human has listened to 8 seconds of it; the listener's words then go into
-`confirmedBy`.
+## Styles (21) and moods (21)
 
-| Style | Tempo, meter | Natural moods | Master |
-|---|---|---|---|
-| musicBox (default) | 110-130, 12/8 | joy, curious, tender, playful, wistful | gentle |
-| nocturne (piano) | 50-72, 3/4 or 6/8 | tender, melancholy, wistful, romantic | gentle |
-| cinematic | 60-120 | awe, triumph, melancholy, tension, hopeful | gentle |
-| lullaby | 60-75, 3/4 or 6/8 | tender, calm | gentle |
-| folk | 80-120, 6/8, 3/4, 4/4 | calm, wistful, joy, nostalgic | gentle |
-| minimalist | 100-140 | curious, tension, awe | gentle |
-| jazz | 90-180, swing | playful, nostalgic, romantic, curious | gentle |
-| ambient | 50-80 | awe, calm, dread (highest ghost risk) | gentle |
-| chiptune | 120-160 | joy, playful, drive, tension | dense |
-| lofi | 70-90, swing 55-62 % | nostalgic, calm, wistful | dense |
-| drive | 110-140 | drive, triumph, tension, awe | dense |
+Both are rows of numbers in `tables.ts`. The vocabularies are in `vocab.ts` and `vocabMore.ts`, and
+[`styles/vocabularies.md`](styles/vocabularies.md) is generated from them. A brief names rows,
+never adjectives. Each row stays `unconfirmed` until a human has listened to 8 seconds of it; the
+listener's words then go into `confirmedBy`.
+
+| Style | Atmosphere | Master |
+|---|---|---|
+| lofiElectronic | chill, upbeat, clean electronic | dense |
+| lofi | dusty lo-fi hip-hop (e-piano, vinyl) | dense |
+| drive | driving electronic, four-on-the-floor | dense |
+| house | euphoric house / EDM | dense |
+| synthwave | neon-retro, gated snare, soaring lead | dense |
+| hipHop | head-nod or dark trap, heavy 808 | dense |
+| rock | band energy, driven guitars, tight kit | dense |
+| chiptune | 8-bit, two pulses, triangle, noise | dense |
+| cinematic | string swells, ostinatos, harp and bell colour | gentle |
+| orchestral | heroic/epic: brass theme, string engine, choir, timpani | gentle |
+| suspense | drones, heartbeat pulse, bowed harmonics, stingers | gentle |
+| ambient | airy, spacious, bells and pads | gentle |
+| choral | voices in parts, organ, bells | gentle |
+| folk | tender acoustic: guitar, piano, harp, brushes | gentle |
+| world | drone, modal melody, hand percussion, odd meters | gentle |
+| playful | bouncy mallets, skipping kit | gentle |
+| jazz | swing ride, walking bass, comping | gentle |
+| nocturne | solo piano, rubato | gentle |
+| minimalist | interlocking ostinatos | gentle |
+| lullaby | soft, rocking, nothing percussive | gentle |
+| musicBox | clockwork plucks, no sustain | gentle |
 
 Moods: joy, playful, tender, wistful, melancholy, hopeful, curious, tension, dread, awe, triumph,
-drive, calm, nostalgic, romantic.
+drive, calm, nostalgic, romantic, anger, eerie, mischief, heroic, sensual, grief.
 - Each row has columns for:
   - modes and tempo;
   - harmonic rhythm and lead register;
@@ -132,24 +329,19 @@ per-mode guards are in `theory.ts`.
 Melody types (9): arpeggio, stepwise, hook, ostinato, drone, call and response, counter-melody,
 sequence, theme transformation.
 
-## How to plan a score
+## How to write a score
 
-1. **Spot the film.** Find its 3-5 true sync points, and an arc per section (for example tender, then
-   swelling, then a sudden hush at about 2/3, then a soft close).
-2. **Pick one style.** Give each section a mood, a key and a mode.
-3. **Write the motif first.** A 2-5 note cell with its own rhythm. Then build the harmony under it,
-   with voice-leading by step. Then the phrases:
-   - the question ends off the tonic;
-   - the answer ends on it, straight away;
-   - the high point falls in the second half of the phrase.
-4. **Arrange.** Add density, not length (more notes, never longer notes). Let the motif return:
-   transformed, at the climax, and at the close.
-5. **Print the score and meter it:**
-   ```
-   node tools/music.mjs score <piece>
-   node tools/music.mjs render <piece> out.wav --seconds 45 --fit
-   ```
-6. **8 seconds to a human.** Include the most important mood change.
+Follow [`compose.md`](compose.md). In short:
+1. brief -> numbers (length, picture beats, feeling);
+2. one style + one mood + five mood controls;
+3. compose YOUR harmony, bass lines, motif(s), groove choice and form as `Material`;
+4. `node tools/music.mjs check <file>.ts#<export>` must PASS (key, master, ghost/reverb/masking guards, stems, novelty);
+   answer its ARC line too (the shape of the whole: [`theory/form.md`](theory/form.md), section 3);
+5. `node tools/music.mjs render <file>.ts#<export> out.wav` (use wav for loops: mp3 is not gapless);
+6. 8 seconds (then the whole piece) to a human, as an mp3 on a page.
+
+Hand-written `Piece`s (the nocturne, the samplers) are still valid for styles without a vocabulary
+builder. Write them with `line()` and render them with `renderPiece`.
 
 **Peaks are a composing problem.** Octaves in both hands landing on one downbeat make a true peak
 that caps a gentle master. Fix it in the notes:

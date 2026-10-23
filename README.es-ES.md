@@ -2,12 +2,16 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle: la mesa de un artista llena de garabatos dibujados en código, mientras el nombre se escribe solo en caligrafía">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>La película de lanzamiento, 77 segundos. Cada fotograma y cada sonido se hizo con anidoodle, en código.</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>Arte dibujado a mano, escrito en código.</strong></p>
 
 <p align="center">
-  Ilustraciones, timelapses de dibujo, películas, vídeos explicativos y arte web interactivo en 31 estilos.<br>
+  Ilustraciones, timelapses de dibujo, películas, vídeos explicativos y arte web interactivo en 32 estilos.<br>
   Cada trazo es una función y cada nota es aritmética, así que la misma fuente<br>
   redibuja la misma imagen en cualquier máquina, a cualquier tamaño, para siempre.
 </p>
@@ -19,10 +23,12 @@
   <img src="https://img.shields.io/badge/cada%20render-id%C3%A9ntico-7c5c99" alt="Cada render, idéntico">
 </p>
 
+<p align="center"><sub>Funciona en <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · y cualquier agente que lea skills.</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <b>Español</b></p>
 
 <p align="center">
-  <a href="#31-estilos-entre-los-que-elegir">Estilos</a> ·
+  <a href="#32-estilos-entre-los-que-elegir">Estilos</a> ·
   <a href="#cada-estilo-se-dibuja-solo">Películas del dibujo</a> ·
   <a href="#música-compuesta-con-código">Música</a> ·
   <a href="#qué-puedes-crear">Qué puedes crear</a> ·
@@ -31,16 +37,16 @@
   <a href="#empieza-aquí">Empieza aquí</a>
 </p>
 
-## 31 estilos entre los que elegir
+## 32 estilos entre los que elegir
 
 <p align="center">
-  <img src="assets/styles.jpg" width="100%" alt="31 ilustraciones, cada una con su estilo, desde lápiz y acuarela, cómic con rotulador y risografía hasta pixel art, bloques de juguete, xilografía, sumi-e, esgrafiado, bordado, óleo y libros de cuentos populares">
+  <img src="assets/styles.jpg" width="100%" alt="32 ilustraciones, cada una con su estilo, desde lápiz y acuarela, cómic con rotulador y risografía hasta pixel art, bloques de juguete, xilografía, sumi-e, esgrafiado, bordado, óleo y libros de cuentos populares">
 </p>
 
-Cada estilo es su propia forma de dejar una marca: el afilado de una plumilla, el sangrado de una aguada, el rozado de la tiza sobre la pizarra, el borde rasgado del papel recortado, la trama de un tambor de risografía, una sola línea grabada que se enrosca hasta convertirse en luna. El motivo cambia de forma según la mano que lo dibuje, igual que le pasaría con treinta y un ilustradores distintos. Cada estilo incluye además una película en la que su imagen se dibuja trazo a trazo, siguiendo el orden de trabajo de un artista de ese medio. Elige uno para tu marca y cada imagen que venga después llegará de la misma mano. Cada lámina de arriba, y la propia hoja de contactos, está dibujada por código en este repositorio.
+Cada estilo es su propia forma de dejar una marca: el afilado de una plumilla, el sangrado de una aguada, el rozado de la tiza sobre la pizarra, el borde rasgado del papel recortado, la trama de un tambor de risografía, una sola línea grabada que se enrosca hasta convertirse en luna. El motivo cambia de forma según la mano que lo dibuje, igual que le pasaría con 32 ilustradores distintos. Cada estilo incluye además una película en la que su imagen se dibuja trazo a trazo, siguiendo el orden de trabajo de un artista de ese medio. Elige uno para tu marca y cada imagen que venga después llegará de la misma mano. Cada lámina de arriba, y la propia hoja de contactos, está dibujada por código en este repositorio.
 
 <details>
-<summary><b>Los 31 estilos</b> y cómo se hace cada uno</summary>
+<summary><b>Los 32 estilos</b> y cómo se hace cada uno</summary>
 
 | Estilo | Cómo se hace |
 |---|---|
@@ -52,6 +58,7 @@ Cada estilo es su propia forma de dejar una marca: el afilado de una plumilla, e
 | **Cera** | Garabatos cerosos que dejan libres los surcos del papel |
 | **Collage de papel recortado** | Papel rasgado y cortado, sin líneas dibujadas |
 | **Plano cianotipo** | Dibujo técnico a plumilla sobre una hoja de cianotipia |
+| **Veladura de ensueño** | Finas veladuras de óleo, sin pincelada visible, todos los bordes duros |
 | **Bordado** | Hilo cosido sobre lino tensado en un bastidor |
 | **Vectorial plano** | Formas geométricas nítidas con grano y sombras largas |
 | **Cuento popular ilustrado** | Un primer plano pintado se funde con líneas de lápiz sobre papel crema |
@@ -88,7 +95,15 @@ Cada estilo entrega la imagen terminada y, de la misma fuente, una película de 
 
 ## Música compuesta con código
 
-Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se sintetiza: un piano modelado, con cuerdas que laten, martillos que iluminan el timbre y un pedal que prolonga la resonancia, además de marimba, arpa, guitarra, celesta, campanas, cuerdas, chiptune y batería. Todas las tonalidades mayores y menores, un estado de ánimo para cada sección y un tema que se ajusta a cualquier duración.
+Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se sintetiza con código. Un estilo musical es un vocabulario con el que el modelo compone, nunca una plantilla: hay 21, del lo-fi electrónico, el house y el synthwave a la orquesta, el jazz, el folk y el piano solo. Cada uno aporta el sonido, los ritmos y el lenguaje armónico; los acordes, el motivo y la forma se escriben nuevos, así que cada película tiene su propia banda sonora.
+
+- **Teclados:** un piano modelado sobre un Steinway de cola real, pianos eléctricos Rhodes y Wurlitzer, órganos de ruedas fónicas y de tubos, láminas y campanas.
+- **Conjunto:** secciones de cuerda con músicos independientes, metales, flauta y clarinete, un coro que canta sus vocales, guitarras de nailon, acero y eléctricas, arpa y cuatro tipos de bajo.
+- **Batería:** kits reales hechos con código (acústico, 808, 909, polvoriento, escobillas, orquestal con timbales), cada golpe un poco distinto.
+- **Lo-fi de verdad:** un sampler de 12 bits, vaivén y soplido de cinta, crepitar de vinilo y un bombo que hace respirar la mezcla.
+- **Mezcla y sala:** ecualización por parte, bus de batería, reverbs de sala, placa y convolución, y un máster al volumen de las plataformas de streaming.
+
+`node tools/music.mjs check` aprueba una partitura antes de que nadie la escuche: tonalidad y modo, sonoridad, enmascaramiento, el equilibrio de cada parte y la novedad, que rechaza una partitura que suene como una conocida o la cite.
 
 | Escucha | |
 |---|---|
@@ -97,6 +112,8 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 | [Cinemático, asombro](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electrónica](assets/audio/sampler-drive-electronic-8s.mp3) | más estados de ánimo e instrumentos |
 | [El tema del nocturno en 15 segundos](assets/audio/fit-theme-15s.mp3) | El compositor elige la forma que cabe en ese tiempo |
 
+Y además: un **kit de efectos de sonido**, catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)). Cómo se compone una partitura: [`compose.md`](skills/anidoodle/references/music/compose.md) · [todos los vocabularios](skills/anidoodle/references/music/styles/vocabularies.md).
+
 ## Páginas web que se fijan en ti
 
 <p align="center">
@@ -104,6 +121,19 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 </p>
 
 Ilustraciones interactivas para webs reales: una mascota que sigue el cursor y reacciona a los botones, una imagen de cabecera que se dibuja al desplazarte, un compañero de formulario que se tapa los ojos ante el campo de contraseña. Basta un pequeño módulo ES y un elemento `<ani-doodle>`, sin framework, con opciones de movimiento reducido y uso por teclado. Cada fotograma queda determinado por las entradas que lo preceden.
+
+## Lanza tu producto, dibujado con código
+
+El vídeo al principio de esta página se hizo con anidoodle, y el kit con el que se hizo viene incluido. `launch.mjs new <nombre>` te da una especificación para rellenar: el nombre de tu producto, las peticiones que escribiría un usuario, las respuestas (una imagen dibujada, las pantallas de tu propio producto o una película), unas pocas palabras y tus líneas de instalación. Monta un vídeo de lanzamiento al ritmo de la música: un chat que se escribe solo, respuestas que se abren como tinta, rótulos a pantalla completa y una tarjeta final que mantiene tus líneas de instalación el tiempo suficiente para copiarlas.
+
+- **Cuatro formatos, una línea de tiempo:** 16:9, 1:1, 4:5 y 9:16, cada uno recompuesto para su encuadre con texto legible en un móvil.
+- **Tu producto en pantalla:** su interfaz dibujada a partir de datos, con elementos que saltan del estado anterior al nuevo.
+- **Sonido que sale de la imagen:** cada tecla, pulsación y aterrizaje tiene su efecto, situado donde ocurre en pantalla, sobre una banda sonora compuesta para el vídeo.
+- **Listo para publicar:** `launch.mjs ship <nombre>` renderiza cada formato con su fotograma de portada y sus subtítulos (.srt y .vtt), comprueba la sincronía de audio y vídeo y el nivel de pico en el archivo que entregas, y falla cualquier fotograma cuyo borde corte un texto.
+
+Dos acabados (tinta dibujada, o limpio para un producto centrado en su interfaz), a 30 o 60 fps, con desenfoque de movimiento ajustado a la velocidad de cada fotograma.
+
+Las reglas salen de cuatro montajes de nuestro propio lanzamiento y del oficio de los mejores: di qué es en cinco segundos, nunca pongas texto sobre la ilustración, corta en el tiempo fuerte, haz que el primer fotograma sea la miniatura. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [el kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## Trae tu propia imagen
 
@@ -126,15 +156,16 @@ Pregunta cómo dibujar algo, o trae un dibujo, y anidoodle lo reconstruye como l
 | Para | Obtienes |
 |---|---|
 | **Tu web** | Una ilustración de cabecera, ilustraciones para cada funcionalidad, estados vacíos y un 404, todo de la misma mano. PNG transparentes a cualquier tamaño desde una sola fuente, así que retina e impresión salen gratis. |
-| **Explicativos e informes** | Diagramas de cómo funciona, vistas en sección e infografías animadas, rotuladas con letras trazadas a mano. La tiza, el plano técnico y el bolígrafo van bien para los más serios. |
+| **Explicativos e informes** | Diagramas de cómo funciona, vistas en sección e infografías animadas, rotuladas con letras trazadas a mano. La tiza, el plano técnico y el bolígrafo van bien para los más serios. Una idea puede convertirse en una máquina que funciona, se desmonta y vuelve a montarse, dibujada en cualquier estilo. |
 | **Tu marca** | Un logo que se dibuja solo, una secuencia de títulos, una plantilla de tarjeta social que mantiene tu marca en cada publicación. |
 | **Redes y chat** | Loops sin fin, GIFs y stickers animados transparentes, con el tamaño justo para el feed. |
 | **Presentaciones y documentos** | Una familia de ilustraciones de sección desde un solo programa. Una nueva semilla da una imagen hermana en el mismo estilo. |
 | **Historias** | Storyboards y animatics que crecen hasta convertirse en una película terminada de cualquier duración, con banda sonora original. |
-| **Tu propia imagen** | Trae un dibujo para aplicar su estilo a otro motivo, o una foto para recrearla en cualquiera de las 31 formas de dibujar, con cada trazo hecho en código. |
-| **Páginas web** | Ilustraciones interactivas que siguen el cursor, reaccionan a clics y formularios, o se dibujan al desplazarte por la página. |
+| **Tu propia imagen** | Trae un dibujo para aplicar su estilo a otro motivo, o una foto para recrearla en cualquiera de las 32 formas de dibujar, con cada trazo hecho en código. |
+| **Páginas web** | Ilustraciones interactivas que siguen el cursor, reaccionan a clics y formularios, o se dibujan al desplazarte por la página. Arte de portada y spots junto a tu titular, en el color y la marca de tu página, en claro u oscuro. |
 | **Aprendizaje** | Lecciones de dibujo con láminas paso a paso y timelapses que enseñan cómo se construye una imagen, qué observar y qué errores evitar. |
 | **Personajes** | Un personaje creado una sola vez que se mantiene idéntico entre planos, poses y estilos. |
+| **Tu lanzamiento** | Un vídeo de lanzamiento para tu producto a partir de una plantilla: tus peticiones, tus imágenes, tus palabras y tus líneas de instalación, montado sobre una banda sonora. |
 
 Pídelo con tus propias palabras, *«un faro en risografía para nuestra página de empleo, 1600×900»* o *«un explicativo en tiza de cómo se comparan nuestros planes de precios»*, y anidoodle lo dirige al flujo de trabajo y la receta de estilo adecuados, preguntando solo por lo que la petición deje abierto.
 
@@ -145,7 +176,7 @@ El motor es la mitad fácil. El oficio es la parte que anidoodle carga por ti: s
 - **Historia** le da un sentido a cada pieza. Una idea y un motivo central para una imagen fija; una transformación, una recompensa y un elemento recurrente para una película. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realismo** viene de nombrarlo todo. La anatomía, el punto de vista y la referencia que abriste, para que una mariposa se lea como una criatura con cuerpo y venas. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Estilo** vive en el trazo. Treinta y una recetas completas, una guía para elegir una según el encargo, y los pasos para inventar la tuya propia. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Música** se compone en notas y se sintetiza con código: un piano modelado y una docena de instrumentos, todas las tonalidades mayores y menores, un ánimo para cada sección y un tema que se adapta a cualquier duración. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Música** se compone para cada pieza a partir del vocabulario de un género y se sintetiza con código: 21 géneros, una banda y una orquesta completas, todas las tonalidades mayores y menores, un ánimo para cada sección y un tema que se adapta a cualquier duración. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinismo** es la garantía. Funciones puras y un aleatorio con semilla, para que cualquiera con la fuente reconstruya exactamente la misma pieza. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Método** te mantiene rápido. Demuestra el look en una sola imagen fija, construye de un tirón, y gasta las aprobaciones donde equivocarse sale caro. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -191,6 +222,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 Después, en la interfaz de Codex, abre `/plugins` e instala anidoodle.
 
+**Grok Build:**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust` confirma la instalación; sin él, Grok muestra lo que el plugin puede ejecutar y se detiene. También puedes instalarlo desde la pestaña Marketplace de `/plugins`.
+
 **Cualquier otro agente:** anidoodle es una carpeta de skill estándar (`skills/anidoodle/SKILL.md`), así que puedes copiarla a cualquier entorno que lea skills.
 
 Luego pide lo que quieras: *«dibuja una pera en lápiz y acuarela para nuestra página de recetas»*. Para manejar el motor tú mismo:
@@ -203,6 +243,9 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 Node 20 o más reciente. Las imágenes fijas solo necesitan el navegador de arriba; todo lo que se mueve también usa `ffmpeg`.
@@ -213,7 +256,7 @@ Cuatro backends comparten un mismo núcleo de arte, y el núcleo vive felizmente
 
 ## La película de ejemplo
 
-`skills/anidoodle/example/` contiene **Mechanical Lepidoptera**: 1.410 fotogramas, 47 segundos, una mariposa de relojería que se dibuja a sí misma, cobra vida en acuarela y deja su plano entre la hierba. Es el motor entero en una sola pieza: puntos de control colocados a mano sobre anatomía real, una clave de caché que nombra cada entrada de la que depende un píxel, una banda sonora construida a partir de la receta, y un movimiento continuo desde el boceto hasta la vida. Las láminas de estilo están junto al motor en `skills/anidoodle/engine/src/canvas-core/`, cada una con su receta escrita en la parte de arriba. Abre cualquiera de ellas, cambia un número, y mira qué se mueve.
+`skills/anidoodle/example/` contiene **Mechanical Lepidoptera**: 1.410 fotogramas, 47 segundos, una mariposa de relojería que se dibuja a sí misma, cobra vida en acuarela y deja su plano entre la hierba. Es el motor entero en una sola pieza: puntos de control colocados a mano sobre anatomía real, una clave de caché que nombra cada entrada de la que depende un píxel, una banda sonora compuesta para ella, y un movimiento continuo desde el boceto hasta la vida. Las láminas de estilo están junto al motor en `skills/anidoodle/engine/src/canvas-core/`, cada una con su receta escrita en la parte de arriba. Abre cualquiera de ellas, cambia un número, y mira qué se mueve.
 
 ## Honesto por diseño
 

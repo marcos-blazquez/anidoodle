@@ -2,12 +2,16 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle：一张画满代码手绘涂鸦的画桌，anidoodle 这个名字正以书法字体自己写出自己">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>发布短片，77 秒。每一帧画面、每一个声音，都是用 anidoodle 以代码制作的。</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>手绘的艺术，用代码写成。</strong></p>
 
 <p align="center">
-  插画、绘画延时视频、影片、讲解视频和互动网页艺术，31 种风格任你挑选。<br>
+  插画、绘画延时视频、影片、讲解视频和互动网页艺术，32 种风格任你挑选。<br>
   每一笔都是一个函数，每一个音符都是一次算术运算，于是同一份源码<br>
   在任何机器、任何尺寸下，都会重新画出同一张画，永远如此。
 </p>
@@ -19,10 +23,12 @@
   <img src="https://img.shields.io/badge/%E6%AF%8F%E6%AC%A1%E6%B8%B2%E6%9F%93-%E5%AE%8C%E5%85%A8%E4%B8%80%E8%87%B4-7c5c99" alt="每次渲染，完全一致">
 </p>
 
+<p align="center"><sub>支持 <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · 以及任何能读取技能的智能体。</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <b>简体中文</b> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">
-  <a href="#31-种风格随你挑选">风格</a> ·
+  <a href="#32-种风格随你挑选">风格</a> ·
   <a href="#每种风格都会自己画出来">作画影片</a> ·
   <a href="#用代码谱写音乐">音乐</a> ·
   <a href="#你能做出什么">你能做出什么</a> ·
@@ -31,16 +37,16 @@
   <a href="#开始使用">开始使用</a>
 </p>
 
-## 31 种风格，随你挑选
+## 32 种风格，随你挑选
 
 <p align="center">
-  <img src="assets/styles.jpg" width="100%" alt="31 幅各具风格的插画，从铅笔水彩、马克笔漫画和孔版印刷，到像素画、玩具积木、木刻、墨绘、刮画、刺绣、油画和民间故事绘本">
+  <img src="assets/styles.jpg" width="100%" alt="32 幅各具风格的插画，从铅笔水彩、马克笔漫画和孔版印刷，到像素画、玩具积木、木刻、墨绘、刮画、刺绣、油画和民间故事绘本">
 </p>
 
-每种风格都有自己独特的落笔方式：笔尖的收锋、水彩的晕染、粉笔在石板上的揉擦、剪纸边缘的撕裂感、孔版印刷滚筒的网点、一条雕刻线螺旋展开变成一轮月亮。同一个主题，在不同的风格里会呈现出完全不同的样子，就像出自 31 位不同插画师之手。每种风格还附有一段影片，按使用这种媒介的画家实际作画的顺序，逐笔展示画面如何诞生。为你的品牌选定一种风格，之后的每一张画都会出自同一双手。上面的每一幅样图，连同这张对照表本身，都是这个仓库里的代码画出来的。
+每种风格都有自己独特的落笔方式：笔尖的收锋、水彩的晕染、粉笔在石板上的揉擦、剪纸边缘的撕裂感、孔版印刷滚筒的网点、一条雕刻线螺旋展开变成一轮月亮。同一个主题，在不同的风格里会呈现出完全不同的样子，就像出自 32 位不同插画师之手。每种风格还附有一段影片，按使用这种媒介的画家实际作画的顺序，逐笔展示画面如何诞生。为你的品牌选定一种风格，之后的每一张画都会出自同一双手。上面的每一幅样图，连同这张对照表本身，都是这个仓库里的代码画出来的。
 
 <details>
-<summary><b>全部 31 种风格</b>，以及它们的画法</summary>
+<summary><b>全部 32 种风格</b>，以及它们的画法</summary>
 
 | 风格 | 画法 |
 |---|---|
@@ -52,6 +58,7 @@
 | **蜡笔** | 蜡质涂鸦掠过纸面的凹处 |
 | **剪纸拼贴** | 撕纸与剪纸拼成画面，不画线条 |
 | **蓝晒蓝图** | 在蓝晒纸上用鸭嘴笔绘制技术图 |
+| **梦境釉彩** | 用树脂稀释的油彩薄涂罩染，不见笔触，轮廓一律分明 |
 | **刺绣** | 在绣绷里的亚麻布上穿针走线 |
 | **扁平矢量** | 清晰的几何形状，带颗粒感和长投影 |
 | **民间故事绘本** | 彩绘前景逐渐融入米色纸上的铅笔线 |
@@ -88,7 +95,15 @@
 
 ## 用代码谱写音乐
 
-没有采样，也没有录音。音符写成数据，所有声音都由代码合成：模拟钢琴的琴弦拍频、随力度变亮的琴槌音色和延续的踏板共鸣，还有马林巴、竖琴、吉他、钢片琴、钟声、弦乐、芯片音色和鼓。覆盖所有大调与小调，每一段可以有自己的情绪，主题也能适配任意时长。
+没有采样，也没有录音。音符写成数据，所有声音都由代码合成。曲风是模型用来作曲的词汇，从来不是预设：共 21 种，从低保真电子、House、合成器浪潮到管弦乐、爵士、民谣和钢琴独奏。曲风提供音色、律动和和声语言；和弦、动机和曲式每次都重新写，所以每部片子都有自己的配乐。
+
+- **键盘：** 以一台真实的施坦威三角钢琴为原型建模的钢琴，Rhodes 和 Wurlitzer 电钢琴，音轮风琴和管风琴，槌击乐器和钟。
+- **合奏：** 每位乐手独立演奏的弦乐组，铜管，长笛和单簧管，会唱出元音的合唱团，尼龙弦、钢弦和电吉他，竖琴和四种贝斯。
+- **鼓：** 用代码做出的真实鼓组（原声、808、909、复古颗粒、鼓刷、带定音鼓的管弦乐），每一击都略有不同。
+- **真正的低保真：** 12 位采样器、磁带的晃动与底噪、黑胶的噼啪声，以及让整个混音呼吸起来的底鼓。
+- **混音与空间：** 分轨均衡、鼓组总线、大厅、板式和卷积混响，以及达到流媒体响度标准的母带。
+
+`node tools/music.mjs check` 在任何人试听之前先审核配乐：调性与调式、响度、掩蔽、每个声部的平衡，以及新颖度。听起来像已有曲子或引用了它的配乐不会通过。
 
 | 试听 | |
 |---|---|
@@ -97,6 +112,8 @@
 | [电影感·敬畏](assets/audio/sampler-cinematic-awe-8s.mp3) · [低保真](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [马林巴](assets/audio/sampler-marimba-curious-8s.mp3) · [电子乐](assets/audio/sampler-drive-electronic-8s.mp3) | 更多情绪与乐器 |
 | [15 秒版夜曲主题](assets/audio/fit-theme-15s.mp3) | 作曲器会选择适合时长的曲式 |
 
+以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。配乐怎么写：[`compose.md`](skills/anidoodle/references/music/compose.md) · [词汇一览](skills/anidoodle/references/music/styles/vocabularies.md)。
+
 ## 会注意到你的网页
 
 <p align="center">
@@ -104,6 +121,19 @@
 </p>
 
 真正能放进网站的互动插画：跟随光标、响应按钮的吉祥物，随页面滚动自行画出的主视觉，还有遇到密码栏就捂眼睛的表单伙伴。只需一个小型 ES 模块和一个 `<ani-doodle>` 元素，无需框架；也支持减少动态效果和键盘操作。给定导致当前状态的输入，每一帧都是确定的。
+
+## 用代码画出你的产品发布片
+
+本页顶部的影片就是用 anidoodle 做的，做它的那套工具也一起附带。`launch.mjs new <名称>` 会给你一份待填写的规格：你的产品名、用户会输入的提示、对应的回答（一幅画出来的图、你自己产品的界面，或一段影片）、几个词和你的安装命令。它会踩着节拍剪出一支发布片：自己打字的聊天界面、像墨迹一样绽开的回答、整屏的手写字，以及一张把安装命令停留足够久、方便复制的结尾卡。
+
+- **四种画幅，一条时间线：** 16:9、1:1、4:5 和 9:16，每种画幅都重新构图，文字在手机上也清晰可读。
+- **把你的产品搬上屏幕：** 由数据画出的界面，元素从修改前的状态弹跳到修改后的状态。
+- **声音来自画面：** 每一次按键、点击和落地都有自己的音效，出现在屏幕上发生的位置，下面是为这支片子作曲的配乐。
+- **可以直接发布：** `launch.mjs ship <名称>` 渲染每种画幅，写出封面帧和字幕（.srt 与 .vtt），在交付的文件上检查音画同步和峰值电平，并让任何边缘切到文字的帧不通过。
+
+两种外观（手绘墨迹，或为以界面为主的产品准备的简洁外观），30 或 60 fps，运动模糊按每一帧的速度调整。
+
+这些规则来自我们自己发布片的四次剪辑，以及优秀发布片的手艺：五秒内说清它是什么，文字永远不压在画面上，在强拍上切换，把第一帧做成缩略图。 → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [工具包](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## 带上你自己的图片
 
@@ -126,15 +156,16 @@
 | 用途 | 你能得到什么 |
 |---|---|
 | **官网** | 一张主视觉插画，每个功能点一张点缀小图，空状态和 404 页面，全部出自同一双手。同一份源码可以导出任意尺寸的透明 PNG，视网膜屏和印刷都不在话下。 |
-| **说明图和报告** | 原理图、剖视图和动态信息图，配上手绘风格的标注文字。严肃一点的话题，粉笔黑板、蓝图和圆珠笔风格都很合适。 |
+| **说明图和报告** | 原理图、剖视图和动态信息图，配上手绘风格的标注文字。严肃一点的话题，粉笔黑板、蓝图和圆珠笔风格都很合适。一个想法也能变成一台会运转、会自己拆开再装回去的机器，用任何风格来画。 |
 | **品牌** | 一个会自己画出来的 Logo，一段片头动画，一套每次发帖都保持品牌调性的社交卡片模板。 |
 | **社交和聊天** | 无限循环的动图、GIF，以及适配信息流尺寸的透明动态贴纸。 |
 | **幻灯片和文档** | 一个程序生成一整套章节插画。换个种子，就能得到风格相同的姊妹图。 |
 | **故事** | 分镜和动态预览，一步步长成一部任意时长、配有原创配乐的完整影片。 |
-| **你自己的图片** | 带来一张画，就能用它的风格画新主题；带来一张照片，就能用 31 种画风中的任意一种重新创作，每一笔都由代码绘制。 |
-| **网页** | 会追随光标、响应点击和表单，或随着页面滚动自行绘制的互动插画。 |
+| **你自己的图片** | 带来一张画，就能用它的风格画新主题；带来一张照片，就能用 32 种画风中的任意一种重新创作，每一笔都由代码绘制。 |
+| **网页** | 会追随光标、响应点击和表单，或随着页面滚动自行绘制的互动插画。还有放在标题旁的主视觉和小插图，贴合你页面的底色和品牌，浅色深色都行。 |
 | **学习** | 用分步图和延时视频教你一幅画如何完成，还会指出该看什么、常见错误有哪些。 |
 | **角色** | 一个角色只需构建一次，在不同镜头、姿势和风格中始终保持一致。 |
+| **你的发布** | 用模板为你的产品做一支发布片：你的提示、你的画面、你的文字和安装命令，配着音乐剪好。 |
 
 用大白话说出你的需求就行，比如 *“给我们的招聘页面画一张孔版印刷风格的灯塔，1600×900”*，或者 *“用粉笔黑板风格画一张解释我们定价方案的说明图”*，anidoodle 会自动把它路由到合适的工作流和风格配方，只有在你没说清楚的地方才会追问。
 
@@ -144,8 +175,8 @@
 
 - **故事**，让每件作品都有一个重点。一张静态图只讲一个想法、聚焦一个主体；一部短片只有一次转变、一个高潮，和一个反复出现的意象。→ [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **写实感**，来自把它说清楚。解剖结构、观察视角，以及你参考过的资料，都要交代明白，这样一只蝴蝶读起来才像是一个有身体、有翅脉的真实生物。→ [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
-- **风格**，活在笔触里。31 套完整配方，外加一份按场合挑风格的指南，以及自创风格的步骤。→ [`styles.md`](skills/anidoodle/references/styles.md)
-- **音乐**，先写成音符，再由代码合成：建模钢琴和十余种乐器、所有大小调、每个段落各自的情绪，以及能适配任意时长的主题旋律。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **风格**，活在笔触里。32 套完整配方，外加一份按场合挑风格的指南，以及自创风格的步骤。→ [`styles.md`](skills/anidoodle/references/styles.md)
+- **音乐**，依照某种曲风的词汇为每件作品作曲，再由代码合成：21 种曲风、完整的乐队和管弦乐团、所有大小调、每个段落各自的情绪，以及能适配任意时长的主题旋律。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **确定性**，是这套系统的承诺。纯函数加上带种子的随机数，任何人拿到源码都能重建出一模一样的作品。→ [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **方法**，让你保持速度。先用一张静态图验证效果，再一路做到底，把审批环节留给那些出错代价高的地方。→ [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -191,6 +222,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 然后在 Codex 的 TUI 中输入 `/plugins`，安装 anidoodle。
 
+**Grok Build：**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust` 用于确认安装；不加它，Grok 会列出插件可以运行的内容，然后停下。也可以在 `/plugins` 的 Marketplace 标签页里安装。
+
 **其他智能体：** anidoodle 是标准的 skill 文件夹（`skills/anidoodle/SKILL.md`），可以复制到任何能读取 skill 的运行环境。
 
 然后直接说出你想要什么就行，比如 *“给我们的菜谱页面画一个铅笔加水彩风格的梨”*。如果你想亲自操作引擎：
@@ -203,6 +243,9 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 需要 Node 20 及以上版本。静态图只需要上面那个浏览器；只要涉及动态效果，就还会用到 `ffmpeg`。
@@ -213,7 +256,7 @@ node tools/gate.mjs   hero                                 # determinism, contra
 
 ## 示例短片
 
-`skills/anidoodle/example/` 目录里放着**机械鳞翅目**（Mechanical Lepidoptera）：1,410 帧，47 秒，一只机械蝴蝶自己画出自己的图纸，在水彩中苏醒过来，又把蓝图留在了草丛里。这一部作品，就是整个引擎的缩影：控制点是按照真实解剖结构手工摆放的，缓存键记录了每个像素依赖的每一个输入，配乐按照配方生成，从画成到活过来，是一气呵成的一个动作。风格样图和引擎放在一起，都在 `skills/anidoodle/engine/src/canvas-core/` 里，每一张的顶部都写着自己的配方。随便打开一个，改一个数字，看看会发生什么变化。
+`skills/anidoodle/example/` 目录里放着**机械鳞翅目**（Mechanical Lepidoptera）：1,410 帧，47 秒，一只机械蝴蝶自己画出自己的图纸，在水彩中苏醒过来，又把蓝图留在了草丛里。这一部作品，就是整个引擎的缩影：控制点是按照真实解剖结构手工摆放的，缓存键记录了每个像素依赖的每一个输入，配乐专为它创作，从画成到活过来，是一气呵成的一个动作。风格样图和引擎放在一起，都在 `skills/anidoodle/engine/src/canvas-core/` 里，每一张的顶部都写着自己的配方。随便打开一个，改一个数字，看看会发生什么变化。
 
 ## 诚实是设计出来的
 

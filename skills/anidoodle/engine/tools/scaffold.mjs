@@ -10,10 +10,14 @@
 //   --still <name>  write a one-frame picture module (a still is a film one frame long, so every
 //                   tool works on it unchanged) and its host page, ready to render
 //   --film <name>   write a minimal film module and its host page, ready to render
-//   --example       copy the mechanical-butterfly in as well, to READ. It is proof of craft, not
-//                   a template: copying it gets you somebody else's film with your title on it.
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+//   --example       copy the mechanical-butterfly in as well, to READ, and anidoodle's own launch
+//                   films (launch, launch2, launch3, launchClip, which are built on it). They are
+//                   proof of craft, not a template: copying one gets you somebody else's film with
+//                   your title on it. Without --example they stay out, with every module only they
+//                   use; the launch KIT (launchKit, kinetic, launchCut, launchTemplate, launchExample)
+//                   always ships, because that is what your own launch film is built on.
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -39,16 +43,43 @@ if (!Number.isFinite(bpm) || bpm <= 0 || !Number.isInteger(60 * fps / bpm)) die(
 if (!Number.isFinite(duration) || duration <= 0 || !Number.isSafeInteger(Math.round(duration * fps))) die("--duration must be positive seconds with a finite frame count");
 const durationFrames = Math.max(1, Math.round(duration * fps));
 
+// anidoodle's own launch films: our film, not starter content. They import the worked example, so
+// they only come in with it. Everything that imports them (their type sheets) goes with them, and
+// so does every module nothing else imports; a plain scaffold then typechecks and renders.
+const OWN_FILMS = ["launch", "launch2", "launch3", "launchClip"];
+const ownFilmFiles = () => {
+  const SRC = join(ENGINE, "src");
+  const walk = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : p.endsWith(".ts") ? [p] : []; });
+  const files = walk(SRC);
+  const res = (from, spec) => { const b = resolve(dirname(from), spec); for (const e of ["", ".ts", "/index.ts"]) { const c = resolve(b + e); if (existsSync(c) && statSync(c).isFile()) return c; } return null; }; // resolve(): on Windows "dir/index.ts" must become "dir\index.ts" to match the walked file list
+  const imp = new Map(files.map((f) => [f, new Set([...readFileSync(f, "utf8").matchAll(/(?:from|import)\s*\(?\s*"(\.[^"]+)"/g)].map((m) => res(f, m[1])).filter(Boolean))]));
+  const page = (f) => join(SRC, "hosts", `page-${f.slice(f.lastIndexOf(sep) + 1)}`);
+  const out = new Set(OWN_FILMS.map((n) => join(SRC, "canvas-core", `${n}.ts`)));
+  for (let grew = true; grew;) { grew = false; for (const f of files) if (!out.has(f) && [...imp.get(f)].some((t) => out.has(t))) { out.add(f); grew = true; } }
+  for (const f of [...out]) if (f.includes(`${sep}canvas-core${sep}`) && existsSync(page(f))) out.add(page(f));
+  const users = (f) => files.filter((g) => imp.get(g).has(f));
+  const roots = files.filter((f) => !out.has(f) && users(f).length === 0), reach = new Set(), st = [...roots];
+  while (st.length) { const f = st.pop(); if (reach.has(f) || out.has(f)) continue; reach.add(f); st.push(...imp.get(f)); }
+  for (const f of files) if (!reach.has(f)) out.add(f);
+  return out;
+};
+const skip = opt.example ? new Set() : ownFilmFiles();
+
 mkdirSync(target, { recursive: true });
-cpSync(join(ENGINE, "src"), join(target, "src"), { recursive: true });
+cpSync(join(ENGINE, "src"), join(target, "src"), { recursive: true, filter: (f) => !skip.has(f) });
 cpSync(join(ENGINE, "tools"), join(target, "tools"), { recursive: true });
 for (const f of ["package.json", "package-lock.json", "tsconfig.json"]) if (existsSync(join(ENGINE, f))) cpSync(join(ENGINE, f), join(target, f));
 
 if (opt.example) {
   const ex = join(SKILL, "example", "src");
-  if (!existsSync(ex)) die(`--example asked for, but ${ex} is not there`);
+  if (!existsSync(ex)) die(`--example: the worked film is not in this install (the directory copy leaves it out to stay small). Clone https://github.com/alexgreensh/anidoodle and run its skills/anidoodle/engine/tools/scaffold.mjs with --example.`);
   cpSync(ex, join(target, "src"), { recursive: true });
 }
+
+// Reference images (public-domain paintings with their PROVENANCE.json) come along when a module
+// in the tree names one as an asset; a film loads its assets relative to the project root.
+const tsIn = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? tsIn(p) : p.endsWith(".ts") ? [p] : []; });
+if (tsIn(join(target, "src")).some((f) => readFileSync(f, "utf8").includes('"assets/refs/'))) cpSync(join(ENGINE, "assets", "refs"), join(target, "assets", "refs"), { recursive: true });
 
 // A film is data: meta, an empty asset manifest, and shots that tile [0, duration). The starter
 // draws something that MOVES on every frame, because a film whose first frame is blank teaches
@@ -150,5 +181,5 @@ const tree = (dir, depth = 0) => readdirSync(dir, { withFileTypes: true }).filte
 console.log(`scaffolded ${target}\n${tree(target)}\n`);
 console.log(`next:\n  cd ${target}\n  npm install`);
 if (still) console.log(`  node tools/still.mjs ${still} --out out/${still}.png      # the picture; --scale 2 for print size`);
-if (film) console.log(`  node tools/still.mjs ${film} --out out/look.png\n  node tools/gate.mjs ${film}`);
+if (film) console.log(`  node tools/still.mjs ${film} --out out/look.png\n  node tools/render.mjs ${film}                      # the gate measures the MP4\n  node tools/gate.mjs ${film}`);
 if (opt.example) console.log(`  node tools/gate.mjs mechanicalLepidoptera --mp4 out/mechanical-lepidoptera.mp4   # the worked example`);

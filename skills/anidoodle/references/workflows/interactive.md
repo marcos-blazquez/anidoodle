@@ -10,6 +10,7 @@ Three worked demos. Each is one self-contained HTML file that opens offline:
 |---|---|
 | **Landing mascot** (`mascotHero`) | Bit watches your pointer anywhere on the page, eyes first and head a beat later. Hover or Tab to a button and he turns, presents it with his near arm, raises his brows and brightens his bulb. Press: a crouch. Click "Get started": he jumps and cheers, with pencil twinkles. "Take the tour" gets a wave, and poking him makes him giggle. |
 | **Scroll-drawn hero** (`scrollHero`) | The storybook plate draws itself as you scroll: construction ovals, a head-first pencil sketch, washes spreading from where the brush lands, then the final line, with a pencil or brush at the nib throughout. Scroll back and it un-draws. The last frame is the plate itself, pixel for pixel. |
+| **Machine explorer** (`mechanismExplorer`) | A music box movement plays its tune. Hover, focus or press "Take it apart" and it comes apart outside-in, each assembly on its own bouncy spring; point at a part and it lights, and the readout says what it does. Built on `machines.md`. |
 | **Form mascot** (`formMascot`) | He reads your caret, nodding at each keystroke, and shuts his eyes with hands up for the password. Press "Show" and he is caught peeking. A bad submit gets a worried head-shake. "Busy" whirs his key, and success is the cheer. |
 
 All three use the storybook plate's hand (pencil + watercolour). Bit is drawn by the plate's own
@@ -34,7 +35,7 @@ proves it for every emitted page.
 | Can a drawn frame change later? | No. An event is stamped after every tick already drawn: `max(lastDrawn + 1, clock)`. |
 | Initial configuration? | It is in the log at tick 0, before anything is drawn: target rectangles, scroll, reduced motion, state and device scale. |
 | Resize, DPR? | Log coordinates are in the piece's logical space, so a resize logs new `rect`s and a `view` (the device scale), and changes no state. The host re-bakes at the new scale in the background and swaps on a frame boundary. |
-| Interrupted motion? | Springs are critically damped and closed form. A target is a pure function of the discrete state, which only changes at events. Position and velocity carry across an interruption into a new exact segment. |
+| Interrupted motion? | Springs are closed form, critically damped by default; `zeta: 0.8` to `0.9` lands with one faint overshoot, the weight of a real part. A target is a pure function of the discrete state, which only changes at events. Position and velocity carry across an interruption into a new exact segment. |
 | One-shot reactions? | Fixed-length clips restarted by each trigger (`clip(s, "click:start", 72)`), with randomness seeded from the log (`reactionSeed`). |
 | Keyboard? | Keyboard focus counts as hover (`attention` is the more recent of the two), and Enter or Space is a click. Every hover reaction has a focus equivalent. |
 | Touch? | A tap logs its position. A lifted finger logs `exit` and `leave`, so nothing stays hovered. |
@@ -124,10 +125,11 @@ readback, so hashed pages run with `window.__ANI_RASTER__ = "cpu"` from the star
 | Form mascot | 22/22 | 3.5 ms / 0.3 ms (2.2 on an earlier run) | 2.0 s | 152, 31 MB at scale 1.25 | 51 KB (20 KB gzip) |
 | Scroll hero | 22/22 | 1.8 ms / 0.4 ms | 2.0 s | 4 stages + one patch per stroke, 34 MB at 1.25, 58 MB at 2 | 48 KB (19 KB gzip) |
 
-The budget was 6 ms p95 at DPR 2. The first build measured 7.8 ms, because the head rotated ten face
-sprites a frame and the paper multiplied the full canvas every frame. Composing the head once and
-baking the paper into the sprites brought it to 2-4 ms (it varies by run on a shared machine). Single frames reach 10-22 ms when a
-reaction first needs a cel, or during a rescale swap.
+The budget is 6 ms p95 at DPR 2. To stay inside it, compose a multi-part head into one sprite
+instead of rotating each face sprite every frame, and bake the paper texture into the sprites rather
+than multiplying it over the whole canvas each frame; the demos above run at 2-4 ms that way (it
+varies by run on a shared machine). Single frames reach 10-22 ms when a reaction first needs a cel,
+or during a rescale swap.
 
 ## Limits
 

@@ -2,13 +2,17 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle: an artist's table of code-drawn doodles, with the name writing itself in calligraphy">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>The launch film, 77 seconds. Every frame and every sound in it was made with anidoodle, in code.</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>Hand-drawn art, written as code.</strong></p>
 
 <p align="center">
-  Illustrations, drawing timelapses, films, explainers and interactive web art in 31 styles.<br>
-  Every mark is a function and every note is arithmetic, so the same source<br>
+  Illustrations, drawing timelapses, films, explainers and interactive web art in 32 styles.<br>
+  Every mark is a function and every score is written, so the same source<br>
   redraws the same picture on every machine, at every size, for good.
 </p>
 
@@ -19,10 +23,12 @@
   <img src="https://img.shields.io/badge/every%20render-identical-7c5c99" alt="Every render identical">
 </p>
 
+<p align="center"><sub>Works in <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · and any agent that reads skills. <a href="#get-started">Install</a></sub></p>
+
 <p align="center"><b>English</b> · <a href="README.ja-JP.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">
-  <a href="#31-styles-to-choose-from">Styles</a> ·
+  <a href="#32-styles-to-choose-from">Styles</a> ·
   <a href="#every-style-draws-itself">Drawing films</a> ·
   <a href="#music-composed-in-code">Music</a> ·
   <a href="#what-you-can-make">What you can make</a> ·
@@ -31,16 +37,16 @@
   <a href="#get-started">Get started</a>
 </p>
 
-## 31 styles to choose from
+## 32 styles to choose from
 
 <p align="center">
-  <img src="assets/styles.jpg" width="100%" alt="31 illustrations, each in its own style, from pencil and watercolour, marker comic and risograph to pixel art, toy brick, woodcut, sumi-e, scratchboard, embroidery, painted oil and a folk-tale storybook">
+  <img src="assets/styles.jpg" width="100%" alt="32 illustrations, each in its own style, from pencil and watercolour, marker comic and risograph to pixel art, toy brick, woodcut, sumi-e, scratchboard, embroidery, painted oil and a folk-tale storybook">
 </p>
 
-Each style is its own way of making a mark: the taper of a nib, the bleed of a wash, the scumble of chalk on slate, the torn edge of cut paper, the halftone of a risograph drum, one engraved line spiralling out to become a moon. The subject changes shape in each hand, the way it would for thirty-one different illustrators. Every style also ships a film of its picture being drawn, mark by mark, in the order an artist in that medium works. Pick one for your brand and every picture after it arrives in the same hand. Every plate above, and the contact sheet itself, is drawn by code in this repo.
+Each style is its own way of making a mark: the taper of a nib, the bleed of a wash, the scumble of chalk on slate, the torn edge of cut paper, the halftone of a risograph drum, one engraved line spiralling out to become a moon. The subject changes shape in each hand, the way it would for 32 different illustrators. Every style also ships a film of its picture being drawn, mark by mark, in the order an artist in that medium works. Pick one for your brand and every picture after it arrives in the same hand. Every plate above, and the contact sheet itself, is drawn by code in this repo.
 
 <details>
-<summary><b>All 31 styles</b>, and how each one is made</summary>
+<summary><b>All 32 styles</b>, and how each one is made</summary>
 
 | Style | How it's made |
 |---|---|
@@ -52,6 +58,7 @@ Each style is its own way of making a mark: the taper of a nib, the bleed of a w
 | **Crayon** | Waxy scribble fills that skip the paper's valleys |
 | **Cut-paper collage** | Torn and cut paper, no drawn lines |
 | **Cyanotype blueprint** | Ruling-pen drafting on a cyanotype sheet |
+| **Dream glaze** | Thin resin-oil glazes, no visible stroke, every edge hard |
 | **Embroidery** | Thread stitched through linen in a hoop |
 | **Flat vector** | Crisp geometric shapes with grain and long shadows |
 | **Folk-tale storybook** | Painted foreground dissolving into pencil line on cream paper |
@@ -88,7 +95,22 @@ Every style ships the finished picture and, from the same source, a film of it b
 
 ## Music, composed in code
 
-No samples and no recordings. The notes are written as data, and every sound is synthesized: a modelled piano (strings that beat, hammers that brighten, a pedal that rings), marimba, harp, guitar, celesta, bells, strings, chiptune and drums. Every major and minor mode, a mood per section, and a theme that fits itself to any length.
+The notes are written as data and the engine makes the sound. Nothing in this repository is a recording. A music style is a vocabulary the model composes from, never a preset: 21 of them, from lo-fi electronic, house and synthwave to orchestral, jazz, folk and solo piano. Each gives the sound, the grooves and the harmony language; the chords, the motif and the form are written new, so every film gets its own score.
+
+Install the optional sound pack and eight acoustic instruments play recordings of real ones: a Steinway grand and an upright, concert harp, marimba, vibraphone, glockenspiel, tubular bells and timpani, in three recorded rooms. Synths, lo-fi colour, electronic drums and sound effects stay in code. Without the pack every score still plays, unchanged.
+
+```bash
+node <skill>/engine/tools/soundfetch.mjs list    # the install directory and what is installed
+node <skill>/engine/tools/soundfetch.mjs get all # download (373 MB), verify by hash, unpack; your agent asks you first
+```
+
+- **Keys:** a piano modelled on a real Steinway grand, Rhodes and Wurlitzer electric pianos, tonewheel and pipe organs, mallets and bells.
+- **Ensemble:** string sections of separate players, brass, flute and clarinet, a choir that sings its vowels, nylon, steel and electric guitars, harp and four kinds of bass.
+- **Drums:** real kits in code (acoustic, 808, 909, dusty, brushes, orchestral with timpani), every hit a little different.
+- **Real lo-fi:** a 12-bit sampler, tape wobble and hiss, vinyl crackle and a kick that makes the mix breathe.
+- **Mix and room:** per-part EQ, a drum bus, hall, plate and convolution reverbs, and a master at streaming loudness.
+
+`node tools/music.mjs check` clears a score before anyone listens: key and mode, loudness, masking, the balance of every part, and novelty, which fails a score that sounds like a known one or quotes it.
 
 | Listen | |
 |---|---|
@@ -97,6 +119,8 @@ No samples and no recordings. The notes are written as data, and every sound is 
 | [Cinematic, awe](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electronic](assets/audio/sampler-drive-electronic-8s.mp3) | more moods and instruments |
 | [The nocturne's theme in 15 seconds](assets/audio/fit-theme-15s.mp3) | the composer picks the form that fits the length |
 
+Also in the box: a **sound-effects kit**, fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)). How a score is composed: [`compose.md`](skills/anidoodle/references/music/compose.md) · [every vocabulary](skills/anidoodle/references/music/styles/vocabularies.md).
+
 ## Web pages that notice you
 
 <p align="center">
@@ -104,6 +128,19 @@ No samples and no recordings. The notes are written as data, and every sound is 
 </p>
 
 Interactive illustrations for real sites: a mascot that follows the cursor and reacts to buttons, a hero that draws itself as the page scrolls, a form companion that covers its eyes at the password field. One small ES module and a `<ani-doodle>` element, no framework, with reduced-motion and keyboard paths. Each frame is still a fact, given the input that led to it.
+
+## Launch your product, drawn in code
+
+The film at the top of this page was made with anidoodle, and the kit it was made with ships with it. `launch.mjs new <name>` gives you a spec to fill: your product's name, the prompts a user would type, the answers (a drawn picture, your product's own screens, or a film), a few words and your install lines. It cuts a launch film on the beat: a chat that types itself, answers that bloom open, full-frame lettering, and an end card that holds your install lines long enough to copy.
+
+- **Four shapes, one timeline:** 16:9, 1:1, 4:5 and 9:16, each re-composed for its frame with type that stays legible on a phone.
+- **Your product on screen:** its interface drawn from data, items springing from the before state to the after.
+- **Sound from the picture:** every key, press and landing gets its own effect, placed where it happens on screen, over a score composed for the film.
+- **Ready to post:** `launch.mjs ship <name>` renders every shape with its poster frame and captions (.srt and .vtt), checks audio-to-video sync and peak level on the file you deliver, and fails any frame whose edge cuts off text.
+
+Two looks (drawn ink, or clean for a UI-first product), at 30 or 60 fps, with motion blur matched to each frame's speed.
+
+The rules come from four cuts of our own launch and from the craft of the best ones out there: say what it is within five seconds, never put words over the art, cut on the downbeat, make the first frame the thumbnail. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [the kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## Bring your own image
 
@@ -126,15 +163,16 @@ Ask how to draw something, or bring a drawing, and anidoodle rebuilds it as a le
 | For | You get |
 |---|---|
 | **Your website** | A hero illustration, spot art for each feature, empty states and a 404, all in one hand. Transparent PNGs at any size from one source, so retina and print come free. |
-| **Explainers and reports** | How-it-works diagrams, cutaways and animated infographics, labelled in drafted lettering. Chalkboard, blueprint and ballpoint suit the serious ones. |
+| **Explainers and reports** | How-it-works diagrams, cutaways and animated infographics, labelled in drafted lettering. Chalkboard, blueprint and ballpoint suit the serious ones. An idea can become a working machine that plays, takes itself apart and folds back, drawn in any style. |
 | **Your brand** | A logo that draws itself on, a title sequence, a social card template that stays on brand for every post. |
 | **Social and chat** | Endless loops, GIFs and transparent animated stickers, sized for the feed. |
 | **Decks and docs** | A family of section illustrations from one program. A new seed gives a sister image in the same style. |
 | **Stories** | Storyboards and animatics that grow into a finished film of any length, with an original score. |
-| **Your own image** | Bring a picture and get its style on a new subject, or bring a photo and get it recreated in any of the 31 hands, every mark drawn in code. |
-| **Web pages** | Interactive illustrations that watch the cursor, react to clicks and forms, or draw themselves as the page scrolls. |
+| **Your own image** | Bring a picture and get its style on a new subject, or bring a photo and get it recreated in any of the 32 hands, every mark drawn in code. |
+| **Web pages** | Interactive illustrations that watch the cursor, react to clicks and forms, or draw themselves as the page scrolls. Hero art and spots that sit beside your headline on your page's own colour and brand, light or dark. |
 | **Learning** | Drawing lessons: step sheets and timelapses that teach how a picture is built, with what to look for and the common mistakes. |
 | **Characters** | One character, built once and kept identical across shots, poses and styles. |
+| **Your launch** | A launch film for your product from a template: your prompts, your pictures, your words and your install lines, cut to a score. |
 
 Ask in plain words, *"a risograph lighthouse for our careers page, 1600×900"* or *"a chalkboard explainer of how our pricing tiers stack up"*, and anidoodle routes it to the right workflow and style recipe, asking only for what the request leaves open.
 
@@ -145,7 +183,7 @@ The engine is the easy half. The craft is the part anidoodle carries for you, si
 - **Story** gives every piece a point. One idea and one focal subject for a still; one transformation, one payoff and one returning token for a film. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realism** comes from naming it. The anatomy, the view and the reference you opened, so a butterfly reads as a creature with a body and veins. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Style** lives in the mark. Thirty-one full recipes, a guide for picking one per job, and the steps for inventing your own. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Music** is composed as notes and synthesized in code: a modelled piano and a dozen instruments, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Music** is composed for each piece from a genre's vocabulary and played by modelled and recorded instruments: 21 genres, a full band and orchestra, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinism** is the guarantee. Pure functions and a seeded random, so anyone with the source rebuilds the exact same piece. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Method** keeps you fast. Prove the look on one still, build straight through, and spend approval where being wrong is expensive. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -191,6 +229,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 Then in the Codex TUI: `/plugins` and install anidoodle.
 
+**Grok Build:**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust` confirms the install; without it, Grok shows what the plugin can run and stops. You can also install it from the Marketplace tab in `/plugins`.
+
 **Any other agent:** anidoodle is a standard skill folder (`skills/anidoodle/SKILL.md`), so it can be copied into any harness that reads skills.
 
 Then ask for what you want: *"draw a pencil & watercolour pear for our recipes page"*. To drive the engine yourself:
@@ -203,6 +250,9 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 Node 20 or newer. Stills need only the browser above; anything that moves also uses `ffmpeg`.
@@ -213,7 +263,7 @@ Four backends share one art core, and the core stays blissfully unaware of which
 
 ## The example film
 
-`skills/anidoodle/example/` holds **Mechanical Lepidoptera**: 1,410 frames, 47 seconds, a clockwork butterfly that drafts itself, comes alive in watercolour, and leaves its blueprint in the grass. It is the whole engine in one piece: control points placed by hand over real anatomy, a cache key that names every input a pixel depends on, a score built from the recipe, and one unbroken move from built to alive. The style plates sit beside the engine in `skills/anidoodle/engine/src/canvas-core/`, each with its recipe written at the top. Open any of them, change a number, and watch what moves.
+`skills/anidoodle/example/` holds **Mechanical Lepidoptera**: 1,410 frames, 47 seconds, a clockwork butterfly that drafts itself, comes alive in watercolour, and leaves its blueprint in the grass. It is the whole engine in one piece: control points placed by hand over real anatomy, a cache key that names every input a pixel depends on, a score composed for it, and one unbroken move from built to alive. The style plates sit beside the engine in `skills/anidoodle/engine/src/canvas-core/`, each with its recipe written at the top. Open any of them, change a number, and watch what moves.
 
 ## Honest by design
 
