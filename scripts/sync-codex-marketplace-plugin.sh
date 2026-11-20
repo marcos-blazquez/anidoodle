@@ -43,11 +43,34 @@ cd "${REPO_ROOT}"
 # The engine's unit tests and the worked example film stay in the repository too: Anthropic's directory
 # holds any plugin over 512 files for a manual review, so every release waited days. The tools that
 # use them (npm test, gate --self-test, scaffold --example) say where to get them when they are absent.
-EXCLUDE='^skills/anidoodle/engine/test/|^skills/anidoodle/example/|/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$|/engine/package-lock\.json$|/music/blind/|/canvas-core/cheetah[A-Za-z]*\.ts$|/music/pieces/cheetah[A-Za-z]*\.ts$|/hosts/page-cheetah[A-Za-z]*\.ts$|/test/cheetahRig\.test\.ts$|/test/craft\.test\.ts$'
+# three.js (1.3 MB, over the directory's 256 KiB file hold) and its 500 type files are left out too: the
+# plugin gets the same pinned release from npm install, checked against the same sha256 (tools/overlay.mjs).
+# The narration demo (its baked voice is 700 KB) is the repository's own demo, like the launch films.
+# The check fixtures (fixture*.ts, the films the ship and motion end-to-end runs use) stay with those runs.
+# The sound-effect unit checks (tools/sfx-*-unit.mjs) are repository tests too; npm test runs them there.
+EXCLUDE='^skills/anidoodle/engine/test/|^skills/anidoodle/example/|/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$|/engine/package-lock\.json$|/music/blind/|/canvas-core/cheetah[A-Za-z]*\.ts$|/music/pieces/cheetah[A-Za-z]*\.ts$|/hosts/page-cheetah[A-Za-z]*\.ts$|/test/cheetahRig\.test\.ts$|/test/craft\.test\.ts$|/engine/vendor/three/three\.module\.js$|/engine/vendor/three/types/|/canvas-core/fixture[A-Z][A-Za-z]*\.ts$|/hosts/page-fixture[A-Z][A-Za-z]*\.ts$|/engine/tools/(ship|motion)-e2e\.mjs$|/engine/tools/sfx-[a-z-]+-unit\.mjs$|/canvas-core/narrationDemo(Voice)?\.ts$|/hosts/page-narrationDemo\.ts$|/assets/narration/narrationDemo\.json$'
 count=0
 while IFS= read -r f; do
   mkdir -p "${STAGE}/$(dirname "$f")"; cp -p "$f" "${STAGE}/$f"; count=$((count + 1))
 done < <(git ls-files skills/ | grep -v -E "${EXCLUDE}")
+
+# without three.js's type files the plugin's tsconfig types "three" loosely (three-untyped.d.ts), so callbacks
+# into three.js cannot infer their parameter types there: the staged tsconfig drops that one strict rule.
+node -e '
+  const fs = require("fs"), f = process.argv[1], j = JSON.parse(fs.readFileSync(f, "utf8"));
+  j.compilerOptions.paths.three = ["./vendor/three/three-untyped.d.ts"]; j.compilerOptions.noImplicitAny = false;
+  fs.writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+' "${STAGE}/skills/anidoodle/engine/tsconfig.json"
+
+# a host page that is exactly the standard one (import the film, mountFilm) is left out: the tools build that
+# page in memory when a film has none (engine/tools/names.mjs standardHost), pixel-identical. Custom pages stay.
+dropped=0
+for h in "${STAGE}"/skills/anidoodle/engine/src/hosts/page-*.ts; do
+  n="$(basename "$h" .ts)"; n="${n#page-}"
+  want="$(printf 'import { %s } from "../canvas-core/%s";\nimport { mountFilm } from "./page";\n\nmountFilm(%s);' "$n" "$n" "$n")"
+  if [ "$(cat "$h")" = "${want}" ] && [ -f "${STAGE}/skills/anidoodle/engine/src/canvas-core/${n}.ts" ]; then rm "$h"; dropped=$((dropped + 1)); fi
+done
+echo "left out ${dropped} standard host pages (built in memory)"
 
 # a showcase or launch film in the installed plugin is a leak of the repository's own promotion: refuse to publish one
 leaked="$(cd "${STAGE}" && find . -type f \( -iname 'cheetah*' -o -iname 'page-cheetah*' -o -name 'launch[0-9]*.ts' -o -name 'launchClip.ts' \) | head -5)"
